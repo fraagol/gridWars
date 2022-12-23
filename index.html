@@ -1,0 +1,95 @@
+<html>
+  <head>
+    <title>Canvas tutorial</title>
+    <script type="text/javascript">
+        const GRID_SIZE = 20;
+        const SCALE= 100;
+        let hLines = initArray(GRID_SIZE);
+        let vLines = initArray(GRID_SIZE);
+        let squares = initArray(GRID_SIZE);
+
+        let move=0;
+        let posX=0;
+        let p1 = {x:5, y:5};
+      function draw(){
+        var canvas = document.getElementById('tutorial');
+        if (canvas.getContext){
+          var ctx = canvas.getContext('2d');
+          ctx.lineJoin = "round";
+          ctx.lineCap= "round";
+          ctx.lineWidth = 4;
+          ctx.fillStyle = "rgb(230, 230, 230)";
+            for(var x=0; x<=GRID_SIZE; x++){
+                for(var y=0; y<=GRID_SIZE; y++){
+                    ctx.beginPath();
+                    ctx.arc (x*SCALE, y*SCALE, 10, 0, 2*Math.PI);
+                    ctx.fill();
+                }
+               
+                
+            }
+        setInterval(update, 100);  
+        
+
+        }
+
+      }
+      function update(){
+        var canvas = document.getElementById('tutorial');
+        var ctx = canvas.getContext('2d');
+        if(move!=0){
+        ctx.fillStyle = "rgb(97, 64, 88)";
+        ctx.beginPath();
+     //   ctx.fillRect(p1.x*SCALE, p1.y*SCALE, p1.vx==0?10:p1.vx*SCALE, p1.vy==0?10:p1.vy*SCALE);
+        ctx.moveTo(p1.x*SCALE, p1.y*SCALE);   
+        ctx.lineTo((p1.x+p1.vx)*SCALE,(p1.y+p1.vy)*SCALE);
+            ctx.stroke();
+     console.log(p1.vy==0?1:p1.vy);
+        p1.x+=p1.vx;
+        p1.y+=p1.vy;
+       // move=0;
+        }
+      }
+
+
+  function keydown(event){
+      if(event.keyCode == 39){
+          move = 1;
+          p1.vx=1;
+          p1.vy=0;
+     //   console.log(event);
+      } else  if(event.keyCode == 37){
+          move = 1;
+          p1.vx=-1;
+          p1.vy=0;
+      
+      }else  if(event.keyCode == 38){
+          move = 1;
+          p1.vx=0;
+          p1.vy=-1;
+      
+      }if(event.keyCode == 40){
+          move = 1;
+          p1.vx=0;
+          p1.vy=1;
+      
+      }
+      console.log(p1);
+  }
+  
+  document.addEventListener("keydown", keydown);
+
+function  initArray(n){
+    return  new Array(n).fill(0).map(() => new Array(n).fill(0));
+
+
+}
+    </script>
+    <style type="text/css">
+      canvas { border: 0px solid black; }
+    </style>
+  </head>
+  <body onload="draw();">
+    <canvas id="tutorial" width="1010" height="1010"></canvas>
+  </body>
+</html>
