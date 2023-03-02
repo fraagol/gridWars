@@ -1,75 +1,122 @@
 <html>
   <head>
-    <title>Canvas tutorial</title>
+    <title>GridWars</title>
     <script type="text/javascript">
         const GRID_SIZE = 20;
-        const SCALE= 100;
+        const SCALE= 50;
         let hLines = initArray(GRID_SIZE);
         let vLines = initArray(GRID_SIZE);
         let squares = initArray(GRID_SIZE);
 
-        let move=0;
-        let posX=0;
-        let p1 = {x:5, y:5};
+        
+        
+        let p1 = {x:GRID_SIZE/4, y:GRID_SIZE/4, style: "rgb(100, 100, 250)", headColor:"rgb(255,0,0)", move:0};
+        let p2 = {x:3*GRID_SIZE/4, y:3*GRID_SIZE/4, style: "rgb(50, 250, 50)", headColor:"rgb(200,0,0)", move:0};
       function draw(){
-        var canvas = document.getElementById('tutorial');
+        var canvas = document.getElementById('canvas');
         if (canvas.getContext){
           var ctx = canvas.getContext('2d');
           ctx.lineJoin = "round";
           ctx.lineCap= "round";
-          ctx.lineWidth = 4;
+          ctx.lineWidth = 8;
           ctx.fillStyle = "rgb(230, 230, 230)";
             for(var x=0; x<=GRID_SIZE; x++){
                 for(var y=0; y<=GRID_SIZE; y++){
                     ctx.beginPath();
-                    ctx.arc (x*SCALE, y*SCALE, 10, 0, 2*Math.PI);
+                    ctx.arc (x*SCALE, y*SCALE, 2, 0, 2*Math.PI);
                     ctx.fill();
                 }
                
                 
             }
-        setInterval(update, 100);  
+        setInterval(update, 1000);  
         
 
         }
 
       }
       function update(){
-        var canvas = document.getElementById('tutorial');
+        updatePlayer(p1);
+        updatePlayer(p2);
+      }
+
+      function updatePlayer(player){
+        fetch("https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/?hLines="+hLines)
+        .then(response => response.text())
+        .then(direction => setMove(direction, player));
+        var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
-        if(move!=0){
-        ctx.fillStyle = "rgb(97, 64, 88)";
-        ctx.beginPath();
-     //   ctx.fillRect(p1.x*SCALE, p1.y*SCALE, p1.vx==0?10:p1.vx*SCALE, p1.vy==0?10:p1.vy*SCALE);
-        ctx.moveTo(p1.x*SCALE, p1.y*SCALE);   
-        ctx.lineTo((p1.x+p1.vx)*SCALE,(p1.y+p1.vy)*SCALE);
-            ctx.stroke();
-     console.log(p1.vy==0?1:p1.vy);
-        p1.x+=p1.vx;
-        p1.y+=p1.vy;
-       // move=0;
+        if(player.move!=0){
+          ctx.fillStyle = "rgb(255, 255, 255)";
+          ctx.beginPath();
+      //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
+          ctx.strokeStyle=player.style;
+          ctx.moveTo(player.x*SCALE, player.y*SCALE);   
+          ctx.lineTo((player.x+player.vx)*SCALE,(player.y+player.vy)*SCALE);
+          ctx.stroke();
+      //   ctx.fillStyle = "rgb(0, 200, 0)"; 
+          ctx.beginPath();
+          ctx.arc (player.x*SCALE, player.y*SCALE, 2, 0, 2*Math.PI);
+          ctx.fill();
+
+          console.log(player.x, player.y, player.vx + player.x, player.vy + player.y);
+          player.x+=player.vx;
+          player.y+=player.vy;
+
+          ctx.fillStyle = player.headColor; 
+          ctx.beginPath();
+          ctx.arc (player.x*SCALE, player.y*SCALE, 2, 0, 2*Math.PI);
+          ctx.fill();
+
+          player.move=0;
         }
       }
 
+  function setMove(direction, player){
+    console.log("move: "+ direction)
+    switch(direction){
+      case "0":
+        player.move = 1
+        player.vx=1;
+        player.vy=0;
+        break;
+      case "1":
+        player.move = 1
+        player.vx=-1;
+        player.vy=0;
+        break;
+      case "2":
+        player.move = 1
+        player.vx=0;
+        player.vy=-1;
+        break;
+      case "3":
+        player.move = 1
+        player.vx=0;
+        player.vy=1;
+        break;
+      
+    }
+  }    
 
   function keydown(event){
       if(event.keyCode == 39){
-          move = 1;
+          p1.move = 1;
           p1.vx=1;
           p1.vy=0;
      //   console.log(event);
       } else  if(event.keyCode == 37){
-          move = 1;
+          p1.move = 1;
           p1.vx=-1;
           p1.vy=0;
       
       }else  if(event.keyCode == 38){
-          move = 1;
+          p1.move = 1;
           p1.vx=0;
           p1.vy=-1;
       
       }if(event.keyCode == 40){
-          move = 1;
+          p1.move = 1;
           p1.vx=0;
           p1.vy=1;
       
@@ -90,6 +137,6 @@ function  initArray(n){
     </style>
   </head>
   <body onload="draw();">
-    <canvas id="tutorial" width="1010" height="1010"></canvas>
+    <canvas id="canvas" width="1000" height="1000" style="border: 1px solid black;  display: block;    margin: 0 auto;"></canvas>
   </body>
 </html>
