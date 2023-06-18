@@ -5,17 +5,23 @@
         const GRID_SIZE = 20;
         const SCALE= 50;
         let hLines = initArray(GRID_SIZE);
-        let vLines = initArray(GRID_SIZE);
+        let vLines = initArray(GRID_SIZE); 
         let squares = initArray(GRID_SIZE);
 
-        
-        
-        let p1 = {x:GRID_SIZE/4, y:GRID_SIZE/4, style: "rgb(100, 100, 250)", headColor:"rgb(255,0,0)", move:0};
-        let p2 = {x:3*GRID_SIZE/4, y:3*GRID_SIZE/4, style: "rgb(50, 250, 50)", headColor:"rgb(200,0,0)", move:0};
+        hLines[0][0]= 1;
+        hLines[1][0]= 2;
+        const players = [];
+
+        let p1 = {id:1, x:GRID_SIZE/4, y:GRID_SIZE/4, style: "rgb(100, 100, 250)", headColor:"rgb(255,0,0)", move:0};
+        let p2 = {id:2, x:3*GRID_SIZE/4, y:3*GRID_SIZE/4, style: "rgb(50, 250, 50)", headColor:"rgb(200,0,0)", move:0};
+        players[1] = p1;
+        players[2] = p2;
+
       function draw(){
         var canvas = document.getElementById('canvas');
         if (canvas.getContext){
           var ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.lineJoin = "round";
           ctx.lineCap= "round";
           ctx.lineWidth = 8;
@@ -26,24 +32,65 @@
                     ctx.arc (x*SCALE, y*SCALE, 2, 0, 2*Math.PI);
                     ctx.fill();
                 }
-               
+              
                 
             }
-        setInterval(update, 1000);  
+
+        for (let vIndex = 0; vIndex < GRID_SIZE; vIndex++) {
+          for (let hIndex = 0; hIndex < GRID_SIZE; hIndex++) {
+                drawHLine(vIndex,hIndex);
+                drawVLine(vIndex,hIndex);
+          
+        }
+          
+          
+        }
+      //  setInterval(update, 50);  
         
 
         }
 
+
+
+
       }
+      function drawHLine(x,y){
+          const line = hLines[x][y];
+          console.log(x,y, line);
+          if(line>0){
+          var ctx = canvas.getContext('2d');
+       
+          ctx.fillStyle = players[line].style;
+          ctx.beginPath();
+      //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
+          ctx.strokeStyle=players[line].style;
+          ctx.moveTo(x*SCALE,y*SCALE);   
+          ctx.lineTo((x+1)*SCALE,y*SCALE);
+          ctx.stroke();
+          }
+        }
+        function drawVLine(x,y){
+          const line = vLines[x][y];
+          console.log(x,y, line);
+          if(line>0){
+          var ctx = canvas.getContext('2d');
+       
+          ctx.fillStyle = players[line].style;
+          ctx.beginPath();
+      //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
+          ctx.strokeStyle=players[line].style;
+          ctx.moveTo(x*SCALE,y*SCALE);   
+          ctx.lineTo(x*SCALE,(y+1)*SCALE);
+          ctx.stroke();
+          }
+        }
       function update(){
         updatePlayer(p1);
-        updatePlayer(p2);
+       // updatePlayer(p2);
       }
 
       function updatePlayer(player){
-        fetch("https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/?hLines="+hLines)
-        .then(response => response.text())
-        .then(direction => setMove(direction, player));
+
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
         if(player.move!=0){
@@ -67,10 +114,24 @@
           ctx.beginPath();
           ctx.arc (player.x*SCALE, player.y*SCALE, 2, 0, 2*Math.PI);
           ctx.fill();
+          if(player.vx){
 
+          }
+          checkLoop(player);
           player.move=0;
+
+
         }
       }
+
+
+  function checkLoop(player){
+    if (player.vx != 0){
+      console.log(player.x , player.vx);
+    }
+   // console.log("move: ", player.move);
+
+  }
 
   function setMove(direction, player){
     console.log("move: "+ direction)
@@ -104,7 +165,7 @@
           p1.move = 1;
           p1.vx=1;
           p1.vy=0;
-     //   console.log(event);
+
       } else  if(event.keyCode == 37){
           p1.move = 1;
           p1.vx=-1;
@@ -128,8 +189,6 @@
 
 function  initArray(n){
     return  new Array(n).fill(0).map(() => new Array(n).fill(0));
-
-
 }
     </script>
     <style type="text/css">
@@ -138,5 +197,25 @@ function  initArray(n){
   </head>
   <body onload="draw();">
     <canvas id="canvas" width="1000" height="1000" style="border: 1px solid black;  display: block;    margin: 0 auto;"></canvas>
+    <script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io();
+
+  socket.on('event', function(msg) {
+   console.log(msg);
+   hLines=msg.hLines;
+   vLines = msg.vLines;
+   draw()
+   setMove(msg.direction, p1);
+  });
+
+  socket.io.on("reconnect", (attempt) => {
+    console.log("reconnecting!!!!");
+    location.reload();
+});
+
+
+
+</script>
   </body>
 </html>
