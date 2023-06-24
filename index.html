@@ -1,221 +1,188 @@
 <html>
-  <head>
-    <title>GridWars</title>
-    <script type="text/javascript">
-        const GRID_SIZE = 20;
-        const SCALE= 50;
-        let hLines = initArray(GRID_SIZE);
-        let vLines = initArray(GRID_SIZE); 
-        let squares = initArray(GRID_SIZE);
 
-        hLines[0][0]= 1;
-        hLines[1][0]= 2;
-        const players = [];
+<head>
+  <title>GridWars</title>
+  <script type="text/javascript">
 
-        let p1 = {id:1, x:GRID_SIZE/4, y:GRID_SIZE/4, style: "rgb(100, 100, 250)", headColor:"rgb(255,0,0)", move:0};
-        let p2 = {id:2, x:3*GRID_SIZE/4, y:3*GRID_SIZE/4, style: "rgb(50, 250, 50)", headColor:"rgb(200,0,0)", move:0};
-        players[1] = p1;
-        players[2] = p2;
+    const GRID_SIZE = 20;
+    const SCALE = 50;
+    let hLines = initArray(GRID_SIZE + 1);
+    let vLines = initArray(GRID_SIZE + 1);
+    let squares = initArray(GRID_SIZE + 1);
 
-      function draw(){
-        var canvas = document.getElementById('canvas');
-        if (canvas.getContext){
-          var ctx = canvas.getContext('2d');
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.lineJoin = "round";
-          ctx.lineCap= "round";
-          ctx.lineWidth = 8;
-          ctx.fillStyle = "rgb(230, 230, 230)";
-            for(var x=0; x<=GRID_SIZE; x++){
-                for(var y=0; y<=GRID_SIZE; y++){
-                    ctx.beginPath();
-                    ctx.arc (x*SCALE, y*SCALE, 2, 0, 2*Math.PI);
-                    ctx.fill();
-                }
-              
-                
+    let checkingSquares = initArray(GRID_SIZE + 1);
+    let ctx;
+
+
+    const players = [];
+    let p0 = { id: 0, style: "rgb(200, 200, 200)" };
+    let p1 = { id: 1, x: GRID_SIZE / 4, y: GRID_SIZE / 4, style: "rgb(100, 100, 250)", headColor: "rgb(255,0,0)", move: 0 };
+    let p2 = { id: 2, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "rgb(50, 250, 50)", headColor: "rgb(200,0,0)", move: 0 };
+    players.push(p0);
+    players.push(p1);
+    players.push(p2);
+
+    function draw() {
+      var canvas = document.getElementById('canvas');
+      if (canvas.getContext) {
+        ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.lineWidth = 8;
+
+        console.log("start loops");
+        for (let hIndex = 0; hIndex <= GRID_SIZE; hIndex++) {
+          for (let vIndex = 0; vIndex <= GRID_SIZE; vIndex++) {
+            drawSquares(hIndex, vIndex);
+            drawHLine(hIndex, vIndex);
+            drawVLine(hIndex, vIndex);
+            drawPlayers();
+            if (checkingSquares[hIndex][vIndex] == 1) {
+              drawCheckingSquare(hIndex, vIndex);
             }
-
-        for (let vIndex = 0; vIndex < GRID_SIZE; vIndex++) {
-          for (let hIndex = 0; hIndex < GRID_SIZE; hIndex++) {
-                drawHLine(vIndex,hIndex);
-                drawVLine(vIndex,hIndex);
-          
-        }
-          
-          
-        }
-      //  setInterval(update, 50);  
-        
-
-        }
-
-
-
-
-      }
-      function drawHLine(x,y){
-          const line = hLines[x][y];
-          console.log(x,y, line);
-          if(line>0){
-          var ctx = canvas.getContext('2d');
-       
-          ctx.fillStyle = players[line].style;
-          ctx.beginPath();
-      //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
-          ctx.strokeStyle=players[line].style;
-          ctx.moveTo(x*SCALE,y*SCALE);   
-          ctx.lineTo((x+1)*SCALE,y*SCALE);
-          ctx.stroke();
           }
         }
-        function drawVLine(x,y){
-          const line = vLines[x][y];
-          console.log(x,y, line);
-          if(line>0){
-          var ctx = canvas.getContext('2d');
-       
-          ctx.fillStyle = players[line].style;
-          ctx.beginPath();
-      //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
-          ctx.strokeStyle=players[line].style;
-          ctx.moveTo(x*SCALE,y*SCALE);   
-          ctx.lineTo(x*SCALE,(y+1)*SCALE);
-          ctx.stroke();
+        console.log("end loops");
+
+        ctx.fillStyle = "rgb(230, 230, 230)";
+        ctx.strokeStyle = "rgb(230, 230, 230)";
+        for (var x = 0; x <= GRID_SIZE; x++) {
+          for (var y = 0; y <= GRID_SIZE; y++) {
+            ctx.beginPath();
+            ctx.arc(x * SCALE, y * SCALE, 2, 0, 2 * Math.PI);
+            ctx.fill();
           }
-        }
-      function update(){
-        updatePlayer(p1);
-       // updatePlayer(p2);
-      }
-
-      function updatePlayer(player){
-
-        var canvas = document.getElementById('canvas');
-        var ctx = canvas.getContext('2d');
-        if(player.move!=0){
-          ctx.fillStyle = "rgb(255, 255, 255)";
-          ctx.beginPath();
-      //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
-          ctx.strokeStyle=player.style;
-          ctx.moveTo(player.x*SCALE, player.y*SCALE);   
-          ctx.lineTo((player.x+player.vx)*SCALE,(player.y+player.vy)*SCALE);
-          ctx.stroke();
-      //   ctx.fillStyle = "rgb(0, 200, 0)"; 
-          ctx.beginPath();
-          ctx.arc (player.x*SCALE, player.y*SCALE, 2, 0, 2*Math.PI);
-          ctx.fill();
-
-          console.log(player.x, player.y, player.vx + player.x, player.vy + player.y);
-          player.x+=player.vx;
-          player.y+=player.vy;
-
-          ctx.fillStyle = player.headColor; 
-          ctx.beginPath();
-          ctx.arc (player.x*SCALE, player.y*SCALE, 2, 0, 2*Math.PI);
-          ctx.fill();
-          if(player.vx){
-
-          }
-          checkLoop(player);
-          player.move=0;
 
 
         }
       }
 
 
-  function checkLoop(player){
-    if (player.vx != 0){
-      console.log(player.x , player.vx);
+      function drawSquares(x, y) {
+        // if(drawCheckingSquare[x][y])
+        const square = squares[x][y];
+        // console.log("drawing square " + x +" "+  y + " with color " + players[square].style)
+        ctx.beginPath();
+        ctx.fillStyle = players[square].style;
+        ctx.fillRect((x * SCALE), (y * SCALE), SCALE, SCALE);
+        // ctx.fillRect((x * SCALE) + 0, (y * SCALE) + 0, SCALE - 0, SCALE - 0);
+        //ctx.stroke();
+      }
+
     }
-   // console.log("move: ", player.move);
-
-  }
-
-  function setMove(direction, player){
-    console.log("move: "+ direction)
-    switch(direction){
-      case "0":
-        player.move = 1
-        player.vx=1;
-        player.vy=0;
-        break;
-      case "1":
-        player.move = 1
-        player.vx=-1;
-        player.vy=0;
-        break;
-      case "2":
-        player.move = 1
-        player.vx=0;
-        player.vy=-1;
-        break;
-      case "3":
-        player.move = 1
-        player.vx=0;
-        player.vy=1;
-        break;
-      
+    function drawCheckingSquare(x, y) {
+      console.log("drawing checking  " + x + " " + y + " with color " + players[1].style)
+      ctx.beginPath();
+      ctx.fillStyle = players[1].style;
+      ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
+      ctx.stroke();
     }
-  }    
 
-  function keydown(event){
-      if(event.keyCode == 39){
-          p1.move = 1;
-          p1.vx=1;
-          p1.vy=0;
-
-      } else  if(event.keyCode == 37){
-          p1.move = 1;
-          p1.vx=-1;
-          p1.vy=0;
-      
-      }else  if(event.keyCode == 38){
-          p1.move = 1;
-          p1.vx=0;
-          p1.vy=-1;
-      
-      }if(event.keyCode == 40){
-          p1.move = 1;
-          p1.vx=0;
-          p1.vy=1;
-      
+    function drawHLine(x, y) {
+      const line = hLines[x][y];
+      if (line > 0) {
+        ctx.fillStyle = players[line].style;
+        ctx.beginPath();
+        //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
+        ctx.strokeStyle = players[line].style;
+        ctx.moveTo(x * SCALE, y * SCALE);
+        ctx.lineTo((x + 1) * SCALE, y * SCALE);
+        ctx.stroke();
       }
-      console.log(p1);
-  }
-  
-  document.addEventListener("keydown", keydown);
+    }
+    function drawVLine(x, y) {
+      const line = vLines[x][y];
+      if (line > 0) {
 
-function  initArray(n){
-    return  new Array(n).fill(0).map(() => new Array(n).fill(0));
-}
-    </script>
-    <style type="text/css">
-      canvas { border: 0px solid black; }
-    </style>
-  </head>
-  <body onload="draw();">
-    <canvas id="canvas" width="1000" height="1000" style="border: 1px solid black;  display: block;    margin: 0 auto;"></canvas>
-    <script src="/socket.io/socket.io.js"></script>
-<script>
-  var socket = io();
+        ctx.fillStyle = players[line].style;
+        ctx.beginPath();
+        //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
+        ctx.strokeStyle = players[line].style;
+        ctx.moveTo(x * SCALE, y * SCALE);
+        ctx.lineTo(x * SCALE, (y + 1) * SCALE);
+        ctx.stroke();
+      }
+    }
 
-  socket.on('event', function(msg) {
-   console.log(msg);
-   hLines=msg.hLines;
-   vLines = msg.vLines;
-   draw()
-   setMove(msg.direction, p1);
-  });
+    function drawPlayers() {
+      players.forEach(player => {
+        ctx.beginPath();
+        ctx.fillStyle = player.headColor;
+        ctx.arc(player.x * SCALE, player.y * SCALE, 10, 0, 2 * Math.PI);
 
-  socket.io.on("reconnect", (attempt) => {
-    console.log("reconnecting!!!!");
-    location.reload();
-});
+        ctx.fill();
+      });
+
+    }
 
 
+    function initArray(n) {
+      return new Array(n).fill(0).map(() => new Array(n).fill(0));
+    }
+  </script>
+  <style type="text/css">
+    canvas {
+      border: 0px solid black;
+    }
+  </style>
+</head>
 
-</script>
-  </body>
+<body>
+  <canvas id="canvas" width="1000" height="1000"
+    style="border: 1px solid black;  display: block;    margin: 0 auto;"></canvas>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+
+    socket.on('sendStatus', function (msg) {
+      hLines = msg.hLines;
+      vLines = msg.vLines;
+      squares = msg.squares;
+      players[1].x = msg.players[0].x;
+      players[1].y = msg.players[0].y;
+      players[2].x = msg.players[1].x;
+      players[2].y = msg.players[1].y;
+
+
+      draw()
+      // setMove(msg.direction, p1);
+    });
+
+    socket.on('debug', function (msg) {
+      console.log(msg.player.name);
+
+    });
+
+    socket.on('checkingSquare', function (msg) {
+      checkingSquares[msg.x][msg.y] = 1;
+      draw();
+
+    });
+
+    socket.on('clearCheck', function (msg) {
+      console.log("clearing")
+      checkingSquares = initArray(GRID_SIZE + 1)
+      draw();
+
+    });
+
+    socket.on('closedArea', function (msg) {
+      const { player, closedArea } = msg;
+      checkingSquares = initArray(GRID_SIZE + 1)
+      draw();
+
+    });
+
+
+    socket.io.on("reconnect", (attempt) => {
+      console.log("reconnecting!!!!");
+      location.reload();
+    });
+
+
+
+  </script>
+</body>
+
 </html>
