@@ -7,15 +7,11 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const { Map, Set } = require('immutable');
-const { players, init, GRID_SIZE, hLines, vLines, SLEEP, squares, initArray } = require('./setup')
+const { players, init, hLines, vLines, squares, initArray, CONF } = require('./setup')
 
+const GRID_SIZE = CONF.GRID_SIZE;
 
 init(app, io, server)
-
-
-
-
-
 
 
 async function start() {
@@ -25,43 +21,52 @@ async function start() {
 
       const player = players[index];
       let wait = true;
-      //fetch(player.url)
-      // .then(response => response.text())
-       
-      new Promise((resolve) =>{resolve((Math.floor(Math.random() * 4)).toString())})
-        .then(direction => {
+      // console.log(player.url+ "?vLines="+JSON.stringify(vLines)+"&hLines="+JSON.stringify(hLines)+"&squares="+JSON.stringify(squares))
 
-          switch (direction) {
-            case "0":
-              Object.assign(player, { vx: 1, vy: 0 });
-              hLines[player.x][player.y] = player.id;
-              break;
-            case "1":
-              Object.assign(player, { vx: -1, vy: 0 });
-              if (player.x > 0) {
-                hLines[player.x - 1][player.y] = player.id;
-              }
-              break;
-            case "2":
-              Object.assign(player, { vx: 0, vy: -1 });
-              if (player.y > 0) {
-                vLines[player.x][player.y - 1] = player.id;
-              }
-              break;
-            case "3":
-              Object.assign(player, { vx: 0, vy: 1 });
-              vLines[player.x][player.y] = player.id;
-              break;
+      let turnPromise;
+      if (CONF.USE_AWS) {
+        turnPromise = fetch(player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)).then(response => response.text())
 
-          }
+      } else { //LOCAL
+        turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
+      }
 
-          player.x += player.vx;
-          player.x = Math.max(player.x, 0);
-          player.x = Math.min(player.x, GRID_SIZE);
-          player.y += player.vy;
-          player.y = Math.max(player.y, 0);
-          player.y = Math.min(player.y, GRID_SIZE);
-        })
+
+
+
+      turnPromise.then(direction => {
+
+        switch (direction) {
+          case "0":
+            Object.assign(player, { vx: 1, vy: 0 });
+            hLines[player.x][player.y] = player.id;
+            break;
+          case "1":
+            Object.assign(player, { vx: -1, vy: 0 });
+            if (player.x > 0) {
+              hLines[player.x - 1][player.y] = player.id;
+            }
+            break;
+          case "2":
+            Object.assign(player, { vx: 0, vy: -1 });
+            if (player.y > 0) {
+              vLines[player.x][player.y - 1] = player.id;
+            }
+            break;
+          case "3":
+            Object.assign(player, { vx: 0, vy: 1 });
+            vLines[player.x][player.y] = player.id;
+            break;
+
+        }
+
+        player.x += player.vx;
+        player.x = Math.max(player.x, 0);
+        player.x = Math.min(player.x, GRID_SIZE);
+        player.y += player.vy;
+        player.y = Math.max(player.y, 0);
+        player.y = Math.min(player.y, GRID_SIZE);
+      })
         .then(async x => {
           await evaluate(player);
         })
@@ -73,7 +78,7 @@ async function start() {
           wait = false
         });
       while (wait) {
-        await sleep(SLEEP);
+        await sleep(CONF.SLEEP);
 
       }
     }
@@ -132,6 +137,10 @@ function closedArea(player) {
   for (let index = 0; index < area.length; index++) {
     const square = area[index];
     squares[square.x][square.y] = player.id;
+    hLines[square.x][square.y] = 0;
+    hLines[square.x][(square.y + 1)] = 0;
+    vLines[square.x][square.y] = 0;
+    vLines[(square.x + 1)][(square.y)] = 0;
   }
   //io.emit("closedArea", {player, closedArea: set.toJS()})
 }
@@ -158,8 +167,11 @@ async function checkArea(player, square) {
     return 1;
   }
 
- // io.emit('checkingSquare', { x, y });
- // await sleep(50);
+  if (CONF.AREAS_DEBUG_MODE) {
+    io.emit('checkingSquare', { x, y });
+    await sleep(50);
+  }
+
   //up 
   if (hLines[x][y] == 0) {
     // open, adding the square above
