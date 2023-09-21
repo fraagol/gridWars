@@ -12,12 +12,13 @@
 
     let checkingSquares = initArray(GRID_SIZE + 1);
     let ctx;
+    const  checkingStyle = "#f2c1f1"
 
 
     const players = [];
     let p0 = { id: 0, style: "rgb(200, 200, 200)" };
-    let p1 = { id: 1, x: GRID_SIZE / 4, y: GRID_SIZE / 4, style: "rgb(100, 100, 250)", headColor: "rgb(255,0,0)", move: 0 };
-    let p2 = { id: 2, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "rgb(50, 250, 50)", headColor: "rgb(200,0,0)", move: 0 };
+    let p1 = { id: 1, x: GRID_SIZE / 4, y: GRID_SIZE / 4, style: "rgb(100, 100, 250)", headColor: "rgb(50,200,200)", move: 0 };
+    let p2 = { id: 2, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "rgb(50, 250, 50)", headColor: "rgb(50,200,60)", move: 0 };
     players.push(p0);
     players.push(p1);
     players.push(p2);
@@ -31,7 +32,7 @@
         ctx.lineCap = "round";
         ctx.lineWidth = 8;
 
-        console.log("start loops");
+        
         for (let hIndex = 0; hIndex <= GRID_SIZE; hIndex++) {
           for (let vIndex = 0; vIndex <= GRID_SIZE; vIndex++) {
             drawSquares(hIndex, vIndex);
@@ -43,8 +44,7 @@
             }
           }
         }
-        console.log("end loops");
-
+        
         ctx.fillStyle = "rgb(230, 230, 230)";
         ctx.strokeStyle = "rgb(230, 230, 230)";
         for (var x = 0; x <= GRID_SIZE; x++) {
@@ -74,7 +74,7 @@
     function drawCheckingSquare(x, y) {
       console.log("drawing checking  " + x + " " + y + " with color " + players[1].style)
       ctx.beginPath();
-      ctx.fillStyle = players[1].style;
+      ctx.fillStyle =checkingStyle;
       ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
       ctx.stroke();
     }
@@ -82,10 +82,10 @@
     function drawHLine(x, y) {
       const line = hLines[x][y];
       if (line > 0) {
-        ctx.fillStyle = players[line].style;
+        ctx.fillStyle = players[line].headColor;
         ctx.beginPath();
         //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
-        ctx.strokeStyle = players[line].style;
+        ctx.strokeStyle = players[line].headColor;
         ctx.moveTo(x * SCALE, y * SCALE);
         ctx.lineTo((x + 1) * SCALE, y * SCALE);
         ctx.stroke();
@@ -95,10 +95,10 @@
       const line = vLines[x][y];
       if (line > 0) {
 
-        ctx.fillStyle = players[line].style;
+        ctx.fillStyle = players[line].headColor;
         ctx.beginPath();
         //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
-        ctx.strokeStyle = players[line].style;
+        ctx.strokeStyle = players[line].headColor;
         ctx.moveTo(x * SCALE, y * SCALE);
         ctx.lineTo(x * SCALE, (y + 1) * SCALE);
         ctx.stroke();
@@ -144,7 +144,7 @@
       players[2].x = msg.players[1].x;
       players[2].y = msg.players[1].y;
 
-
+      console.log(`p1:  ${players[1].x},${players[1].y}  p2: ${players[2].x},${players[2].y}`)
       draw()
       // setMove(msg.direction, p1);
     });
