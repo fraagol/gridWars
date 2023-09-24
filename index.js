@@ -148,6 +148,8 @@ function closedArea(player) {
 
 
 let set;
+
+// check if valid closed area
 async function checkArea(player, square) {
   let result = 0;
 
@@ -180,7 +182,8 @@ async function checkArea(player, square) {
   } else {
     // line, checking if same color
     if (hLines[x][y] != player.id) {
-      return 1;
+      // Uncomment if areas need to be closed only with current player's color
+      //  return 1;
     }
   }
   //down 
@@ -191,7 +194,8 @@ async function checkArea(player, square) {
   } else {
     // line, checking if same color
     if (hLines[x][y + 1] != player.id) {
-      return 1;
+      // Uncomment if areas need to be closed only with current player's color
+      //  return 1;
     }
   }
   //left
@@ -202,7 +206,8 @@ async function checkArea(player, square) {
   } else {
     // line, checking if same color
     if (vLines[x][y] != player.id) {
-      return 1;
+      // Uncomment if areas need to be closed only with current player's color
+      //  return 1;
     }
   }
 
@@ -214,27 +219,28 @@ async function checkArea(player, square) {
   } else {
     // line, checking if same color
     if (vLines[x + 1][y] != player.id) {
-      return 1;
+      // Uncomment if areas need to be closed only with current player's color
+      //  return 1;
     }
   }
   return 0;
 }
 
-
+// Check if new position point has more than one line, meaning that an area might be closed
 function checkIfJoin(player) {
   const x = player.x;
   const y = player.y;
   let nLines = 0;
-  if (x > 0 && hLines[x - 1][y] == player.id) {
+  if (x > 0 && hLines[x - 1][y] > 0) {
     nLines++;
   }
-  if (x < GRID_SIZE + 1 && hLines[x][y] == player.id) {
+  if (x < GRID_SIZE + 1 && hLines[x][y] > 0) {
     nLines++;
   }
-  if (y > 0 && vLines[x][y - 1] == player.id) {
+  if (y > 0 && vLines[x][y - 1] > 0) {
     nLines++;
   }
-  if (y < GRID_SIZE + 1 && vLines[x][y] == player.id) {
+  if (y < GRID_SIZE + 1 && vLines[x][y] > 0) {
     nLines++;
   }
 
