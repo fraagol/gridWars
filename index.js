@@ -17,7 +17,7 @@ init(app, io, server)
 async function start() {
   while (true) {
 
-    for (let index = 0; index < players.length; index++) {
+    for (let index = 1; index < players.length; index++) {
 
       const player = players[index];
       let wait = true;
@@ -31,11 +31,7 @@ async function start() {
         turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
       }
 
-
-
-
       turnPromise.then(direction => {
-
         switch (direction) {
           case "0":
             Object.assign(player, { vx: 1, vy: 0 });
