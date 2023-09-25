@@ -8,20 +8,19 @@
     const SCALE = 50;
     let hLines = initArray(GRID_SIZE + 1);
     let vLines = initArray(GRID_SIZE + 1);
-    let squares = initArray(GRID_SIZE + 1);
+    let squares = initArray(GRID_SIZE);
 
     let checkingSquares = initArray(GRID_SIZE + 1);
     let ctx;
-    const  checkingStyle = "#f2c1f1"
+    const checkingStyle = "#f2c1f1"
 
 
-    const players = [];
-    let p0 = { id: 0, style: "rgb(200, 200, 200)" };
-    let p1 = { id: 1, x: GRID_SIZE / 4, y: GRID_SIZE / 4, style: "rgb(100, 100, 250)", headColor: "rgb(50,200,200)", move: 0 };
-    let p2 = { id: 2, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "rgb(50, 250, 50)", headColor: "rgb(50,200,60)", move: 0 };
-    players.push(p0);
-    players.push(p1);
-    players.push(p2);
+    let players = [];
+    players.push({ id: 0, style: "rgb(200, 200, 200)" });
+    players.push({ id: 1, x: GRID_SIZE / 4, y: GRID_SIZE / 4, style: "#ce4bf1", headColor: "rgb(50,200,200)", move: 0 });
+    players.push({ id: 2, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "#93d2f3", headColor: "rgb(50,200,60)", move: 0 });
+    players.push({ id: 3, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "#ff83eb", headColor: "rgb(0,0,0)", move: 0 });
+
 
     function draw() {
       var canvas = document.getElementById('canvas');
@@ -32,7 +31,8 @@
         ctx.lineCap = "round";
         ctx.lineWidth = 8;
 
-        
+        resetPlayersScore();
+
         for (let hIndex = 0; hIndex <= GRID_SIZE; hIndex++) {
           for (let vIndex = 0; vIndex <= GRID_SIZE; vIndex++) {
             drawSquares(hIndex, vIndex);
@@ -42,9 +42,13 @@
             if (checkingSquares[hIndex][vIndex] == 1) {
               drawCheckingSquare(hIndex, vIndex);
             }
+            if (hIndex < GRID_SIZE && vIndex < GRID_SIZE) {
+              let squareOwner = squares[hIndex][vIndex];
+              players[squareOwner].score++;
+            }
           }
         }
-        
+
         ctx.fillStyle = "rgb(230, 230, 230)";
         ctx.strokeStyle = "rgb(230, 230, 230)";
         for (var x = 0; x <= GRID_SIZE; x++) {
@@ -57,24 +61,25 @@
 
         }
       }
-
-
-      function drawSquares(x, y) {
-        // if(drawCheckingSquare[x][y])
-        const square = squares[x][y];
-        // console.log("drawing square " + x +" "+  y + " with color " + players[square].style)
-        ctx.beginPath();
-        ctx.fillStyle = players[square].style;
-        ctx.fillRect((x * SCALE), (y * SCALE), SCALE, SCALE);
-        // ctx.fillRect((x * SCALE) + 0, (y * SCALE) + 0, SCALE - 0, SCALE - 0);
-        //ctx.stroke();
-      }
-
+      updateScoreboard();
     }
-    function drawCheckingSquare(x, y) {
-      console.log("drawing checking  " + x + " " + y + " with color " + players[1].style)
+
+    function drawSquares(x, y) {
+      // if(drawCheckingSquare[x][y])
+      const square = squares[x][y];
+      // console.log("drawing square " + x +" "+  y + " with color " + players[square].style)
       ctx.beginPath();
-      ctx.fillStyle =checkingStyle;
+      ctx.fillStyle = players[square].style;
+      ctx.fillRect((x * SCALE), (y * SCALE), SCALE, SCALE);
+      // ctx.fillRect((x * SCALE) + 0, (y * SCALE) + 0, SCALE - 0, SCALE - 0);
+      //ctx.stroke();
+    }
+
+
+    function drawCheckingSquare(x, y) {
+      console.log("drawing checking  " + x + " " + y + " with color " + checkingStyle)
+      ctx.beginPath();
+      ctx.fillStyle = checkingStyle;
       ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
       ctx.stroke();
     }
@@ -116,6 +121,18 @@
 
     }
 
+    function resetPlayersScore() {
+      for (let index = 0; index < players.length; index++) {
+        const player = players[index];
+        player.score = 0;
+
+      }
+    }
+    function updateScoreboard() {
+      //   console.log(`score: ${players[0].score}, ${players[1].score}, ${players[2].score}`);
+      const scoreboard = document.getElementById("scoreboard");
+      scoreboard.textContent = `score: ${players[0].score}, ${players[1].score}, ${players[2].score}`;
+    }
 
     function initArray(n) {
       return new Array(n).fill(0).map(() => new Array(n).fill(0));
@@ -129,8 +146,11 @@
 </head>
 
 <body>
-  <canvas id="canvas" width="1000" height="1000"
-    style="border: 1px solid black;  display: block;    margin: 0 auto;"></canvas>
+  <div style="display: flex; justify-content: center;">
+    <canvas id="canvas" width="1000" height="1000" style="border: 1px solid black;"></canvas>
+    <div id="scoreboard" style="border: 1px solid black; width: 200px; height: 1000px;"> hola</div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script>
     var socket = io();
@@ -139,14 +159,13 @@
       hLines = msg.hLines;
       vLines = msg.vLines;
       squares = msg.squares;
-      players[1].x = msg.players[0].x;
-      players[1].y = msg.players[0].y;
-      players[2].x = msg.players[1].x;
-      players[2].y = msg.players[1].y;
-
-      console.log(`p1:  ${players[1].x},${players[1].y}  p2: ${players[2].x},${players[2].y}`)
+      players = msg.players;
+      for (let p = 1; p < msg.players.length; p++) {
+        const player = msg.players[p];
+        players[p].x = msg.players[p].x;
+        players[p].y = msg.players[p].y;
+      }
       draw()
-      // setMove(msg.direction, p1);
     });
 
     socket.on('debug', function (msg) {
@@ -161,7 +180,6 @@
     });
 
     socket.on('clearCheck', function (msg) {
-      console.log("clearing")
       checkingSquares = initArray(GRID_SIZE + 1)
       draw();
 
