@@ -1,0 +1,221 @@
+<html>
+
+<head>
+  <title>GridWars</title>
+  <script src="https://unpkg.com/vue@2.7.14/dist/vue.js"></script>
+  <script src="https://unpkg.com/vuex@3.6.2/dist/vuex.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/ui.js"></script>
+  <style>
+    .flip-list-move {
+      transition: transform .3s;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="text-center w-full font-bold text-[42px] text-[#cc0541] underline decoration-[#00c4f5] mt-6 mb-2">
+    Grid Wars
+  </h1>
+  <div class="flex justify-center gap-5 py-4">
+    <canvas id="canvas" width="1000" height="1000" class="ring-2 ring-slate-500 ring-offset-4 rounded-lg"></canvas>
+    <!-- Scoreboard - root component -->
+    <div id="scoreboard" class="border border-slate-500 rounded-lg w-[300px] h-auto px-6 flex flex-col">
+      <div class="py-4 font-bold text-center">
+        Scoreboard
+      </div>
+      <hr class="mb-4">
+      <bar-percentage :players="$store.getters.playersWithPercentage"></bar-percentage>
+      <hr class="mt-4">
+      <transition-group name="flip-list" tag="div" class="flex flex-col gap-4 mt-4">
+        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="flex items-center gap-2 w-full">
+          <div>
+            {{ player.emoji }}
+          </div>
+          <div class="underline" :style="`text-decoration-color: ${player.headColor}`">{{ player.name }}</div>
+          <div class="ml-auto font-bold">{{ player.score}}</div>
+        </div>
+      </transition-group>
+      <hr class="my-4">
+      <div class="flex justify-center mt-auto mb-8">
+        <chart-pie :players="$store.getters.playersSorted"></chart-pie>
+      </div>
+    </div>
+  </div>
+  <!-- Pie -->
+  <template id="pie-chart">
+    <div>
+      <svg v-if="$store.getters.totalScore > 0" :width="width" :height="height">
+        <g :transform="`translate(${width / 2}, ${height / 2})`">
+          <path
+            v-for="(slice, index) in slices"
+            :key="'path-' + index"
+            :d="slice.path"
+            :fill="slice.color"
+          ></path>
+          <text
+            v-for="(slice, index) in slices.filter(el => !!el.label)"
+            :key="'text-' + index"
+            :x="slice.labelX"
+            :y="slice.labelY"
+            text-anchor="middle"
+            alignment-baseline="middle"
+            font-size="14"
+          >
+            {{ slice.label }}
+          </text>
+        </g>
+      </svg>
+      <p v-else>No Data Available</p>
+    </div>
+  </template>
+
+  <!-- Bar -->
+  <template id="bar-percentage">
+    <div>
+      <div v-if="$store.getters.totalScore > 0" class="flex border" :style="{ height: barHeight + 'px' }">
+        <div
+          v-for="(player, index) in players"
+          :key="player.name"
+          class="h-full"
+          :style="`width: ${calculateWidth(player.score)}%; background-color: ${player.headColor || '#f0f0f0'}`"
+        >
+        </div>
+      </div>
+      <p v-else>No Data Available</p>
+      <div v-if="$store.getters.totalScore > 0" class="flex items-center justify-between">
+        <div><!-- Display percentage of totalScore of allPlayersTotalScore -->
+          {{ (($store.getters.totalScore / $store.getters.allPlayersTotalScore) * 100).toFixed(2) }}%
+        </div>
+        <div class="text-right">
+          {{ $store.getters.totalScore }} / {{ $store.getters.allPlayersTotalScore }}
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/socket.client.js"></script>
+
+  <script>
+    const store = new Vuex.Store({
+      state: {
+        players: []
+      },
+      mutations: {
+        setPlayersArray(state, newVal) {
+          state.players = structuredClone(newVal);
+        }
+      },
+      getters: {
+        playersSorted(state) {
+          return state.players.filter(el => el.name).sort((a, b) => b.score - a.score);
+        },
+        totalScore(state) {
+          return state.players.filter(el => el.name).reduce((acc, player) => acc + player.score, 0);
+        },
+        allPlayersTotalScore(state) {
+          return state.players.reduce((acc, player) => acc + player.score, 0);
+        },
+        playersWithPercentage(state, getters) {
+          return state.players.map(player => {
+            return {
+              ...player,
+              percentage: ((player.score / getters.allPlayersTotalScore) * 100).toFixed(1)
+            }
+            // sort to keep players without a name at the end, and then sort by score
+          }).sort((a, b) => {
+              if (!a.name) return 1;    // place players without a name at the end
+              if (!b.name) return -1;   // place players without a name at the end
+              return b.score - a.score; // sort by score in descending order
+          });
+        }
+      }
+    })
+
+    // ----------------- //
+
+    const chartPieComponent = {
+      template: '#pie-chart',
+      props: {
+        players: {
+          type: Array,
+          default: () => [],
+          required: true,
+        },
+      },
+      data() {
+        return {
+          width: 200,
+          height: 200,
+        };
+      },
+      computed: {
+        slices() {
+          if (this.$store.getters.totalScore === 0) return [];
+          
+          let startAngle = 0;
+          return this.players.map((player) => {
+            let angle = (player.score / this.$store.getters.totalScore) * 2 * Math.PI;
+            let x1 = Math.cos(startAngle) * this.radius;
+            let y1 = Math.sin(startAngle) * this.radius;
+            
+            let labelAngle = startAngle + angle / 2;
+            let labelRadius = this.radius / 2; // Position the label at the middle of the slice
+            let labelX = Math.cos(labelAngle) * labelRadius;
+            let labelY = Math.sin(labelAngle) * labelRadius;
+            
+            startAngle += angle;
+            let x2 = Math.cos(startAngle) * this.radius;
+            let y2 = Math.sin(startAngle) * this.radius;
+            
+            let largeArcFlag = angle > Math.PI ? 1 : 0;
+            let path = `M 0 0 L ${x1} ${y1} A ${this.radius} ${this.radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+            
+            let percentage = ((player.score / this.$store.getters.totalScore) * 100).toFixed(1);
+            
+            return { path, color: player.headColor, labelX, labelY, label: percentage !== '0.0' ? `${percentage}%` : 0 };
+          });
+        },
+        radius() {
+          return Math.min(this.width, this.height) / 2;
+        }
+      },
+    };
+
+    // ----------------- //
+
+    const barPercentageComponent = {
+      template: '#bar-percentage',
+      props: {
+        players: {
+          type: Array,
+          required: true,
+        },
+        barWidth: {
+          type: Number,
+          default: 200,
+        },
+        barHeight: {
+          type: Number,
+          default: 30,
+        },
+      },
+      methods: {
+        calculateWidth(score) {
+          return ((score / this.$store.getters.allPlayersTotalScore) * 100).toFixed(2);
+        },
+      },
+    };
+
+    const app = new Vue({
+      store,
+      components: {
+        chartPie: chartPieComponent,
+        barPercentage: barPercentageComponent
+      },
+    }).$mount('#scoreboard')
+  </script>
+</body>
+
+</html>
