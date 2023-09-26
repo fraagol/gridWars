@@ -2,7 +2,7 @@ const CONF = {
   GRID_SIZE: 20,
   USE_AWS: false,
   AREAS_DEBUG_MODE: false,
-  SLEEP: 5
+  SLEEP: 200
 }
 
 let hLines = initArray(CONF.GRID_SIZE + 1);
@@ -11,37 +11,46 @@ let squares = initArray(CONF.GRID_SIZE + 1);
 
 
 const players = [];
-players.push({ id: 0, style: "rgb(200, 200, 200)" });
+players.push({ id: 0, style: "rgb(240, 240, 240)" });
 players.push({
   id: 1,
   name: "Neo",
+  emoji: "😎",
   url: "https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/",
   x: 10, y: 10, vx: 0, vy: 0,
-  style: "#ce4bf1", headColor: "rgb(50,200,200)", move: 0
+  style: "#ffb02e", headColor: "#ffb02e", move: 0
 });
 
 players.push({
   id: 2,
   name: "Agent Smith",
+  emoji: "🚔",
   url: "https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/",
   x: 5, y: 15, vx: 0, vy: 0,
-  style: "#93d2f3", headColor: "rgb(50,200,60)"
+  style: "#26c9fc", headColor: "#26c9fc"
 });
 
-/*players.push({
+players.push({
   id: 3,
   name: "Trinity",
+  emoji: "🥷",
   url: "https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/",
   x: 15, y: 5, vx: 0, vy: 0,
-  style: "#ff83eb", headColor: "rgb(0,0,0)"
+  style: "#ff83eb", headColor: "#ff83eb"
 });
-*/
+
  
 
 
 function init(app, io, server) {
   app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
+  });
+  app.get('/ui.js', (req, res) => {
+    res.sendFile(__dirname + '/ui.js');
+  });
+  app.get('/socket.client.js', (req, res) => {
+    res.sendFile(__dirname + '/socket.client.js');
   });
 
   io.on('connection', (socket) => {
