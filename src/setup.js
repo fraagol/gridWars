@@ -1,6 +1,6 @@
 const CONF = {
   GRID_SIZE: 20,
-  USE_AWS: false,
+  USE_AWS: true,
   AREAS_DEBUG_MODE: false,
   SLEEP: 70
 }
