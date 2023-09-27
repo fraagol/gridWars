@@ -21,8 +21,7 @@ or to reload on code changes:
 
 Browse to: http://localhost:3000
 
-
-## TODO
+## TODO
 
 - [ ] Do not close area if enemy inside (Sergio)
 - [ ] Accept array of Points as an answer from the Lamda (javi)
