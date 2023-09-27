@@ -12,12 +12,19 @@ or
 
 Run with:
 
-`node .`
+`npm run start`
 
 or to reload on code changes:
 
-`node --watch-path=./index.js --watch-path=./index.html --watch-path=./setup.js index.js`
+`npm run dev`
 
 
 Browse to: http://localhost:3000
 
+
+## TODO
+
+[] Do not close area if enemy inside (Sergio)
+[] Accept array of Points as an answer from the Lamda (javi)
+[] Bomb! 💣
+[] Add/remove players
