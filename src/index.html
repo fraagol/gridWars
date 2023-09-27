@@ -27,8 +27,8 @@
       <hr class="mb-4">
       <bar-percentage :players="$store.getters.playersWithPercentage"></bar-percentage>
       <hr class="mt-4">
-      <transition-group name="flip-list" tag="div" class="flex flex-col gap-4 mt-4">
-        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="flex items-center gap-2 w-full">
+      <transition-group name="flip-list" tag="div" class="flex flex-col gap-0 mt-4">
+        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="flex items-center gap-2 w-full" :style="`background-color: ${player.headColor}22; padding:5px`">
           <div>
             {{ player.emoji }}
           </div>
@@ -115,10 +115,10 @@
           return state.players.filter(el => el.name).reduce((acc, player) => acc + player.score, 0);
         },
         allPlayersTotalScore(state) {
-          return state.players.reduce((acc, player) => acc + player.score, 0);
+          return state.players.slice(1).reduce((acc, player) => acc + player.score, 0);
         },
         playersWithPercentage(state, getters) {
-          return state.players.map(player => {
+          return state.players.slice(1).map(player => {
             return {
               ...player,
               percentage: ((player.score / getters.allPlayersTotalScore) * 100).toFixed(1)
