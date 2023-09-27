@@ -24,7 +24,7 @@ Browse to: http://localhost:3000
 
 ## TODO
 
-[] Do not close area if enemy inside (Sergio)
-[] Accept array of Points as an answer from the Lamda (javi)
-[] Bomb! 💣
-[] Add/remove players
+- [ ] Do not close area if enemy inside (Sergio)
+- [ ] Accept array of Points as an answer from the Lamda (javi)
+- [ ] Bomb! 💣
+- [ ] Add/remove players
