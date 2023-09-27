@@ -1,5 +1,6 @@
 const GRID_SIZE = 20;
 const SCALE = 50;
+const FILL_WITH_PATTERN = false;
 let hLines = initArray(GRID_SIZE + 1);
 let vLines = initArray(GRID_SIZE + 1);
 let squares = initArray(GRID_SIZE);
@@ -25,28 +26,28 @@ const DOT_COLOR = "#506095"
 function fillRectWithHatchPattern(context, configs) {
   // Extracting parameters from the configs object
   const {
-      x,
-      y,
-      width,
-      height,
-      lineColor = 'black', // Defaulting to black if not provided
-      bgColor = 'white',   // Defaulting to white if not provided
-      strokeWidth = 1,      // Defaulting to 1 if not provided
-      cross = false
+    x,
+    y,
+    width,
+    height,
+    lineColor = 'black', // Defaulting to black if not provided
+    bgColor = 'white',   // Defaulting to white if not provided
+    strokeWidth = 1,      // Defaulting to 1 if not provided
+    cross = false
   } = configs;
 
   // Create a separate canvas to create a pattern.
   var patternCanvas = document.createElement('canvas');
   var patternContext = patternCanvas.getContext('2d');
-  
+
   // Define the dimensions of the pattern canvas.
   patternCanvas.width = 12.5;
   patternCanvas.height = 12.5;
-  
+
   // Set the background color of the pattern.
   patternContext.fillStyle = bgColor;
   patternContext.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
-  
+
   // Draw the hatch pattern on the pattern canvas.
   patternContext.strokeStyle = lineColor;
   patternContext.lineWidth = strokeWidth;
@@ -116,30 +117,43 @@ function draw() {
 }
 
 function drawSquares(x, y) {
-  // if(drawCheckingSquare[x][y])
-  const square = squares[x][y];
-  const xSquare = x * SCALE;
-  const ySquare = y * SCALE;
-  if (square === 0) {
-    // console.log("drawing square " + x +" "+  y + " with color " + players[square].style)
-    ctx.beginPath();
-    ctx.fillStyle = players?.[square]?.style || "rgb(200, 200, 200)";
-    ctx.fillRect((xSquare), (ySquare), SCALE, SCALE);
-    // ctx.fillRect((xSquare) + 0, (ySquare) + 0, SCALE - 0, SCALE - 0);
-    //ctx.stroke();
+
+
+
+  if (FILL_WITH_PATTERN) {
+    // if(drawCheckingSquare[x][y])
+    const square = squares[x][y];
+    const xSquare = x * SCALE;
+    const ySquare = y * SCALE;
+    if (square === 0) {
+      // console.log("drawing square " + x +" "+  y + " with color " + players[square].style)
+      ctx.beginPath();
+      ctx.fillStyle = players?.[square]?.style || "rgb(200, 200, 200)";
+      ctx.fillRect((xSquare), (ySquare), SCALE, SCALE);
+      // ctx.fillRect((xSquare) + 0, (ySquare) + 0, SCALE - 0, SCALE - 0);
+      //ctx.stroke();
+    } else {
+      // fillRectWithHatchPattern(ctx, (xSquare), (ySquare), SCALE, SCALE, players[square].style, "rgb(200, 200, 200)");
+      fillRectWithHatchPattern(ctx, {
+        x: xSquare,
+        y: ySquare,
+        width: SCALE,
+        height: SCALE,
+        lineColor: players?.[square]?.style || "rgb(200, 200, 200)",
+        bgColor: 'rgb(240, 240, 240)',
+        strokeWidth: 2,
+        cross: false,
+      });
+
+    }
   } else {
-    // fillRectWithHatchPattern(ctx, (xSquare), (ySquare), SCALE, SCALE, players[square].style, "rgb(200, 200, 200)");
-    fillRectWithHatchPattern(ctx, {
-      x: xSquare,
-      y: ySquare,
-      width: SCALE,
-      height: SCALE,
-      lineColor: players?.[square]?.style || "rgb(200, 200, 200)",
-      bgColor: 'rgb(240, 240, 240)',
-      strokeWidth: 2,
-      cross: false,
-    });
+    const square = squares[x][y];
+    ctx.beginPath();
+    ctx.fillStyle = players[square].style+"33";
+    ctx.fillRect((x * SCALE), (y * SCALE), SCALE, SCALE);
   }
+
+
 }
 
 
@@ -210,7 +224,7 @@ function resetPlayersScore() {
 }
 function updateScoreboard() {
   store.commit('setPlayersArray', players);
-    // console.log(`score: ${players[0].score}, ${players[1].score}, ${players[2].score}`);
+  // console.log(`score: ${players[0].score}, ${players[1].score}, ${players[2].score}`);
   // const scoreboard = document.getElementById("scoreboard");
   // scoreboard.textContent = `score: ${players[0].score}, ${players[1].score}, ${players[2].score}`;
 }

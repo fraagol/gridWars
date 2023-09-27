@@ -2,12 +2,12 @@ const CONF = {
   GRID_SIZE: 20,
   USE_AWS: false,
   AREAS_DEBUG_MODE: false,
-  SLEEP: 300
+  SLEEP: 70
 }
 
 
 const players = [];
-players.push({ id: 0, style: "rgb(240, 240, 240)" });
+players.push({ id: 0, style: "#F0F0F0" });
 players.push({
   id: 1,
   name: "Neo",
@@ -22,7 +22,7 @@ players.push({
   name: "Agent Smith",
   emoji: "🚔",
   url: "https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/",
-  x: 5, y: 15, vx: 0, vy: 0,
+  x: 5, y: 18, vx: 0, vy: 0,
   style: "#26c9fc", headColor: "#26c9fc"
 });
 
@@ -31,7 +31,7 @@ players.push({
   name: "Trinity",
   emoji: "🥷",
   url: "https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/",
-  x: 15, y: 5, vx: 0, vy: 0,
+  x: 11, y: 5, vx: 0, vy: 0,
   style: "#ff83eb", headColor: "#ff83eb"
 });
 
