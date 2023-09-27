@@ -33,6 +33,7 @@ async function start() {
 
       const player = players[index];
       let wait = true;
+      let do_not_sleep=false;
       // console.log(player.url+ "?vLines="+JSON.stringify(vLines)+"&hLines="+JSON.stringify(hLines)+"&squares="+JSON.stringify(squares))
 
       let turnPromise;
@@ -53,7 +54,8 @@ async function start() {
       if (candidateMove) {
         turnPromise = new Promise((resolve) => { resolve(candidateMove) });
       } else if (CONF.USE_AWS) {
-        turnPromise = fetch(player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)).then(response => response.text())
+        do_not_sleep = true;
+        turnPromise = fetch(player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)).then(response => response.json())
 
       } else { //LOCAL
        //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
@@ -133,7 +135,9 @@ async function start() {
           wait = false
         });
       while (wait) {
-        await sleep(CONF.SLEEP);
+        
+        await sleep(do_not_sleep? 0:CONF.SLEEP);
+        
 
       }
     }
