@@ -40,9 +40,9 @@ async function start() {
 
       } else { //LOCAL
         turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
-       // turnPromise = new Promise((resolve) => { resolve({x:1,y:4}) });
+      //  turnPromise = new Promise((resolve) => { resolve({x:1,y:4}) });
         turnPromise = turnPromise.then((target => {
-          if(typeof target == Object)
+        
           if (player.x < target.x) {
             return "0";
           };
@@ -224,7 +224,7 @@ async function checkArea(player, square) {
   }
   //left
   if (vLines[x][y] == 0) {
-    // open, adding the square above
+    // open, adding the square to the left
     result += await checkArea(player, Map({ x: x - 1, y }));
     if (result > 0) return result;
   } else {
@@ -237,7 +237,7 @@ async function checkArea(player, square) {
 
   //right
   if (vLines[x + 1][y] == 0) {
-    // open, adding the square above
+    // open, adding the square to the right
     result += await checkArea(player, Map({ x: x + 1, y }));
     if (result > 0) return result;
   } else {
