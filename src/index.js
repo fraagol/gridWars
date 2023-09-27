@@ -16,6 +16,7 @@ init(app, io, server, restart)
 let hLines = initArray(CONF.GRID_SIZE + 1);
 let vLines = initArray(CONF.GRID_SIZE + 1);
 let squares = initArray(CONF.GRID_SIZE + 1);
+let nextMovements = [[], [{ x: 0, y: 0 }, { x: 20, y:20 }, { x: 0, y: 0 }], [], []];
 
 
 function restart() {
@@ -35,29 +36,57 @@ async function start() {
       // console.log(player.url+ "?vLines="+JSON.stringify(vLines)+"&hLines="+JSON.stringify(hLines)+"&squares="+JSON.stringify(squares))
 
       let turnPromise;
-      if (CONF.USE_AWS) {
+
+      // check if available movement
+      let candidateMove;
+      if (nextMovements[player.id].length) {
+        candidateMove = nextMovements[player.id][0];
+        if (inTarget(player, candidateMove)) {
+          nextMovements[player.id].shift();
+          if (nextMovements[player.id].length) {
+            candidateMove = nextMovements[player.id][0];
+          } else {
+            candidateMove = null;
+          }
+        }
+      }
+      if (candidateMove) {
+        turnPromise = new Promise((resolve) => { resolve(candidateMove) });
+      } else if (CONF.USE_AWS) {
         turnPromise = fetch(player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)).then(response => response.text())
 
       } else { //LOCAL
-        turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
-      //  turnPromise = new Promise((resolve) => { resolve({x:1,y:4}) });
+       //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
+        turnPromise = new Promise((resolve) => { resolve([{ x: 10, y: 10 }, { x: 8, y: 8 }, { x: 7, y: 2 }]) });
+      }
+
         turnPromise = turnPromise.then((target => {
-        
-          if (player.x < target.x) {
+          if (typeof target == 'string') return target;
+
+          let nextMove;
+          if (target instanceof Array) {
+            nextMove = target[0];
+            nextMovements[player.id] = target;
+
+          } else {
+            nextMove = target;
+          }
+  
+          if (player.x < nextMove.x) {
             return "0";
           };
-          if (player.x > target.x) {
+          if (player.x > nextMove.x) {
             return "1";
           };
-          if (player.y < target.y) {
+          if (player.y < nextMove.y) {
             return "3";
           };
-          if (player.y > target.y) {
+          if (player.y > nextMove.y) {
             return "2";
           };
-          return target;
+          return 0;
         }))
-      }
+      
 
       turnPromise.then(direction => {
         switch (direction) {
@@ -90,6 +119,7 @@ async function start() {
         player.y += player.vy;
         player.y = Math.max(player.y, 0);
         player.y = Math.min(player.y, GRID_SIZE);
+
       })
         .then(async x => {
           await evaluate(player);
@@ -98,7 +128,8 @@ async function start() {
           io.emit('sendStatus', { hLines, vLines, squares, players })
         })
         .then(x => {
-
+          player.vx = 0;
+          player.vy = 0;
           wait = false
         });
       while (wait) {
@@ -269,6 +300,11 @@ function checkIfJoin(player) {
   }
 
   return nLines > 1;
+}
+
+function inTarget(a, b) {
+  return a.x == b.x && a.y == b.y;
+
 }
 
 async function sleep(ms) {
