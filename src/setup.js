@@ -2,12 +2,8 @@ const CONF = {
   GRID_SIZE: 20,
   USE_AWS: false,
   AREAS_DEBUG_MODE: false,
-  SLEEP: 200
+  SLEEP: 300
 }
-
-let hLines = initArray(CONF.GRID_SIZE + 1);
-let vLines = initArray(CONF.GRID_SIZE + 1);
-let squares = initArray(CONF.GRID_SIZE + 1);
 
 
 const players = [];
@@ -42,7 +38,7 @@ players.push({
  
 
 
-function init(app, io, server) {
+function init(app, io, server,restart) {
   app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
   });
@@ -51,6 +47,11 @@ function init(app, io, server) {
   });
   app.get('/socket.client.js', (req, res) => {
     res.sendFile(__dirname + '/socket.client.js');
+  });
+
+  app.get('/restart', (req, res) => {
+    restart();
+    res.send("restarted");
   });
 
   io.on('connection', (socket) => {
@@ -69,4 +70,4 @@ function initArray(n) {
   return new Array(n).fill(0).map(() => new Array(n).fill(0));
 }
 
-module.exports = { players, init, hLines, vLines, squares, initArray, CONF }
+module.exports = { players, init, initArray, CONF }

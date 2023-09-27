@@ -7,12 +7,23 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const { Map, Set } = require('immutable');
-const { players, init, hLines, vLines, squares, initArray, CONF } = require('./setup')
+const { players, init, initArray, CONF } = require('./setup')
 
 const GRID_SIZE = CONF.GRID_SIZE;
 
-init(app, io, server)
+init(app, io, server, restart)
 
+let hLines = initArray(CONF.GRID_SIZE + 1);
+let vLines = initArray(CONF.GRID_SIZE + 1);
+let squares = initArray(CONF.GRID_SIZE + 1);
+
+
+function restart() {
+  console.log("restarting");
+  hLines = initArray(CONF.GRID_SIZE + 1);
+  vLines = initArray(CONF.GRID_SIZE + 1);
+  squares = initArray(CONF.GRID_SIZE + 1);
+}
 
 async function start() {
   while (true) {
@@ -29,6 +40,23 @@ async function start() {
 
       } else { //LOCAL
         turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
+       // turnPromise = new Promise((resolve) => { resolve({x:1,y:4}) });
+        turnPromise = turnPromise.then((target => {
+          if(typeof target == Object)
+          if (player.x < target.x) {
+            return "0";
+          };
+          if (player.x > target.x) {
+            return "1";
+          };
+          if (player.y < target.y) {
+            return "3";
+          };
+          if (player.y > target.y) {
+            return "2";
+          };
+          return target;
+        }))
       }
 
       turnPromise.then(direction => {
