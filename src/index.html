@@ -28,11 +28,11 @@
       <bar-percentage :players="$store.getters.playersWithPercentage"></bar-percentage>
       <hr class="mt-4">
       <transition-group name="flip-list" tag="div" class="flex flex-col gap-0 mt-4">
-        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="flex items-center gap-2 w-full" :style="`background-color: ${player.headColor}22; padding:5px`">
+        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="flex items-center gap-2 w-full" :style="`background-color: ${player.style}22; padding:5px`">
           <div>
             {{ player.emoji }}
           </div>
-          <div class="underline" :style="`text-decoration-color: ${player.headColor}`">{{ player.name }}</div>
+          <div class="underline" :style="`text-decoration-color: ${player.style}`">{{ player.name }}</div>
           <div class="ml-auto font-bold">{{ player.score}}</div>
         </div>
       </transition-group>
@@ -78,7 +78,7 @@
           v-for="(player, index) in players"
           :key="player.name"
           class="h-full"
-          :style="`width: ${calculateWidth(player.score)}%; background-color: ${player.headColor || '#f0f0f0'}`"
+          :style="`width: ${calculateWidth(player.score)}%; background-color: ${player.style || '#f0f0f0'}`"
         >
         </div>
       </div>
@@ -174,7 +174,7 @@
             
             let percentage = ((player.score / this.$store.getters.totalScore) * 100).toFixed(1);
             
-            return { path, color: player.headColor, labelX, labelY, label: percentage !== '0.0' ? `${percentage}%` : 0 };
+            return { path, color: player.style, labelX, labelY, label: percentage !== '0.0' ? `${percentage}%` : 0 };
           });
         },
         radius() {

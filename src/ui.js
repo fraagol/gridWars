@@ -72,9 +72,9 @@ function fillRectWithHatchPattern(context, configs) {
 
 let players = [];
 /* players.push({ id: 0, style: "rgb(200, 200, 200)" });
-players.push({ id: 1, x: GRID_SIZE / 4, y: GRID_SIZE / 4, style: "#ce4bf1", headColor: "rgb(50,200,200)", move: 0 });
-players.push({ id: 2, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "#93d2f3", headColor: "rgb(50,200,60)", move: 0 });
-players.push({ id: 3, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "#ff83eb", headColor: "rgb(0,0,0)", move: 0 });
+players.push({ id: 1, x: GRID_SIZE / 4, y: GRID_SIZE / 4, style: "#ce4bf1", style: "rgb(50,200,200)", move: 0 });
+players.push({ id: 2, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "#93d2f3", style: "rgb(50,200,60)", move: 0 });
+players.push({ id: 3, x: 3 * GRID_SIZE / 4, y: 3 * GRID_SIZE / 4, style: "#ff83eb", style: "rgb(0,0,0)", move: 0 });
 */
 function draw() {
   var canvas = document.getElementById('canvas');
@@ -178,10 +178,10 @@ function drawCheckingSquare(x, y) {
 function drawHLine(x, y) {
   const line = hLines[x][y];
   if (line > 0) {
-    ctx.fillStyle = players[line].headColor;
+    ctx.fillStyle = players[line].style;
     ctx.beginPath();
     //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
-    ctx.strokeStyle = players[line].headColor;
+    ctx.strokeStyle = players[line].style;
     ctx.moveTo(x * SCALE, y * SCALE);
     ctx.lineTo((x + 1) * SCALE, y * SCALE);
     ctx.stroke();
@@ -191,10 +191,10 @@ function drawVLine(x, y) {
   const line = vLines[x][y];
   if (line > 0) {
 
-    ctx.fillStyle = players[line].headColor;
+    ctx.fillStyle = players[line].style;
     ctx.beginPath();
     //   ctx.fillRect(player.x*SCALE, player.y*SCALE, player.vx==0?10:player.vx*SCALE, player.vy==0?10:player.vy*SCALE);
-    ctx.strokeStyle = players[line].headColor;
+    ctx.strokeStyle = players[line].style;
     ctx.moveTo(x * SCALE, y * SCALE);
     ctx.lineTo(x * SCALE, (y + 1) * SCALE);
     ctx.stroke();
@@ -204,7 +204,7 @@ function drawVLine(x, y) {
 function drawPlayers() {
   players.forEach(player => {
     // ctx.beginPath();
-    // ctx.fillStyle = player.headColor;
+    // ctx.fillStyle = player.style;
     // ctx.arc(player.x * SCALE, player.y * SCALE, 10, 0, 2 * Math.PI);
     ctx.font = "30px Arial";
     ctx.textAlign = 'center';

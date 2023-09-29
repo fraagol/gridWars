@@ -1,6 +1,6 @@
 const CONF = {
   GRID_SIZE: 20,
-  USE_AWS: true,
+  USE_AWS: false,
   AREAS_DEBUG_MODE: false,
   SLEEP: 70
 }
@@ -14,7 +14,7 @@ players.push({
   emoji: "😎",
   url: "https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/",
   x: 10, y: 10, vx: 0, vy: 0,
-  style: "#ffb02e", headColor: "#ffb02e", move: 0
+  style: "#ffb02e"
 });
 
 players.push({
@@ -23,7 +23,7 @@ players.push({
   emoji: "🚔",
   url: "https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/",
   x: 5, y: 18, vx: 0, vy: 0,
-  style: "#26c9fc", headColor: "#26c9fc"
+  style: "#26c9fc"
 });
 
 players.push({
@@ -32,7 +32,7 @@ players.push({
   emoji: "🥷",
   url: "https://5ebgubys2pea7la3ao63lmtquu0avevo.lambda-url.eu-central-1.on.aws/",
   x: 11, y: 5, vx: 0, vy: 0,
-  style: "#ff83eb", headColor: "#ff83eb"
+  style: "#ff83eb"
 });
 
  
