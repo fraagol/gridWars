@@ -45,7 +45,7 @@ async function start() {
         let candidateMove;
         if (nextMovements[player.id].length) {
           candidateMove = nextMovements[player.id][0];
-          if (inTarget(player, candidateMove)) {
+          if (inTarget(player, candidateMove)|| outside(candidateMove)) {
             nextMovements[player.id].shift();
             if (nextMovements[player.id].length) {
               candidateMove = nextMovements[player.id][0];
@@ -62,7 +62,7 @@ async function start() {
 
         } else { //LOCAL
           //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
-          turnPromise = new Promise((resolve) => { resolve([{ x: rand(20), y: rand(20) }, { x: rand(20), y: rand(20) }]) });
+          turnPromise = new Promise((resolve) => { resolve([{ x: rand(44), y: rand(44) }, { x: rand(21), y: rand(21) }]) });
         }
 
         turnPromise = turnPromise.then((target => {
@@ -318,7 +318,10 @@ function checkIfJoin(player) {
 
 function inTarget(a, b) {
   return a.x == b.x && a.y == b.y;
+}
 
+function outside(a) {
+  return a.x > GRID_SIZE  || a.y > GRID_SIZE  || a.x < 0   || a.y <0 ;
 }
 
 async function sleep(ms) {
