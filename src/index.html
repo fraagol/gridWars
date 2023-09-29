@@ -28,7 +28,8 @@
       <bar-percentage :players="$store.getters.playersWithPercentage"></bar-percentage>
       <hr class="mt-4">
       <transition-group name="flip-list" tag="div" class="flex flex-col gap-0 mt-4">
-        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="flex items-center gap-2 w-full" :style="`background-color: ${player.style}22; padding:5px`">
+        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="flex items-center gap-2 w-full"
+          :style="`background-color: ${player.style}22; padding:5px`">
           <div>
             {{ player.emoji }}
           </div>
@@ -41,27 +42,30 @@
         <chart-pie :players="$store.getters.playersSorted"></chart-pie>
       </div>
     </div>
+    <div id="settings" class="border border-slate-500 rounded-lg w-[300px] h-auto px-6 flex flex-col">
+      <div class="py-4 font-bold text-center">
+        Admin dashboard
+      </div>
+      <hr class="mb-4">
+
+      <div class="py-4 font-bold text-center">
+        <button onclick="fetch('/restart')">Restart</button>
+        <br> <br>
+        <label>Sleep time</label><br>
+        <input type="range" min="20" max="500" list="mydata" step="20" onclick="fetch('/sleep?value='+this.value)">
+      </input>
+
+      </div>
+    </div>
   </div>
   <!-- Pie -->
   <template id="pie-chart">
     <div>
       <svg v-if="$store.getters.totalScore > 0" :width="width" :height="height">
         <g :transform="`translate(${width / 2}, ${height / 2})`">
-          <path
-            v-for="(slice, index) in slices"
-            :key="'path-' + index"
-            :d="slice.path"
-            :fill="slice.color"
-          ></path>
-          <text
-            v-for="(slice, index) in slices.filter(el => !!el.label)"
-            :key="'text-' + index"
-            :x="slice.labelX"
-            :y="slice.labelY"
-            text-anchor="middle"
-            alignment-baseline="middle"
-            font-size="14"
-          >
+          <path v-for="(slice, index) in slices" :key="'path-' + index" :d="slice.path" :fill="slice.color"></path>
+          <text v-for="(slice, index) in slices.filter(el => !!el.label)" :key="'text-' + index" :x="slice.labelX"
+            :y="slice.labelY" text-anchor="middle" alignment-baseline="middle" font-size="14">
             {{ slice.label }}
           </text>
         </g>
@@ -74,12 +78,8 @@
   <template id="bar-percentage">
     <div>
       <div v-if="$store.getters.totalScore > 0" class="flex border" :style="{ height: barHeight + 'px' }">
-        <div
-          v-for="(player, index) in players"
-          :key="player.name"
-          class="h-full"
-          :style="`width: ${calculateWidth(player.score)}%; background-color: ${player.style || '#f0f0f0'}`"
-        >
+        <div v-for="(player, index) in players" :key="player.name" class="h-full"
+          :style="`width: ${calculateWidth(player.score)}%; background-color: ${player.style || '#f0f0f0'}`">
         </div>
       </div>
       <p v-else>No Data Available</p>
@@ -125,9 +125,9 @@
             }
             // sort to keep players without a name at the end, and then sort by score
           }).sort((a, b) => {
-              if (!a.name) return 1;    // place players without a name at the end
-              if (!b.name) return -1;   // place players without a name at the end
-              return b.score - a.score; // sort by score in descending order
+            if (!a.name) return 1;    // place players without a name at the end
+            if (!b.name) return -1;   // place players without a name at the end
+            return b.score - a.score; // sort by score in descending order
           });
         }
       }
@@ -153,27 +153,27 @@
       computed: {
         slices() {
           if (this.$store.getters.totalScore === 0) return [];
-          
+
           let startAngle = 0;
           return this.players.map((player) => {
             let angle = (player.score / this.$store.getters.totalScore) * 2 * Math.PI;
             let x1 = Math.cos(startAngle) * this.radius;
             let y1 = Math.sin(startAngle) * this.radius;
-            
+
             let labelAngle = startAngle + angle / 2;
             let labelRadius = this.radius / 2; // Position the label at the middle of the slice
             let labelX = Math.cos(labelAngle) * labelRadius;
             let labelY = Math.sin(labelAngle) * labelRadius;
-            
+
             startAngle += angle;
             let x2 = Math.cos(startAngle) * this.radius;
             let y2 = Math.sin(startAngle) * this.radius;
-            
+
             let largeArcFlag = angle > Math.PI ? 1 : 0;
             let path = `M 0 0 L ${x1} ${y1} A ${this.radius} ${this.radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
-            
+
             let percentage = ((player.score / this.$store.getters.totalScore) * 100).toFixed(1);
-            
+
             return { path, color: player.style, labelX, labelY, label: percentage !== '0.0' ? `${percentage}%` : 0 };
           });
         },

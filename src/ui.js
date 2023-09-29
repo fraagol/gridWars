@@ -151,6 +151,12 @@ function drawSquares(x, y) {
     ctx.beginPath();
     ctx.fillStyle = players[square].style+"33";
     ctx.fillRect((x * SCALE), (y * SCALE), SCALE, SCALE);
+  /*  ctx.font = "30px Arial";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText("🧑‍💻",(x * SCALE)+(SCALE/2), (y * SCALE)+(SCALE/2));
+    ctx.fill();
+    */
   }
 
 

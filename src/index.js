@@ -16,7 +16,7 @@ init(app, io, server, restart)
 let hLines = initArray(CONF.GRID_SIZE + 1);
 let vLines = initArray(CONF.GRID_SIZE + 1);
 let squares = initArray(CONF.GRID_SIZE + 1);
-let nextMovements = [[], [{ x: 0, y: 0 }, [/*forcing error to check catch*/], { x: 0, y: 0 }], [], []];
+let nextMovements = [[], [{ x: 20, y: 20 }, [/*forcing error to check catch*/], { x: 0, y: 0 }], [], []];
 
 
 function restart() {

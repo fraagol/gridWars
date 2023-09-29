@@ -54,6 +54,12 @@ function init(app, io, server,restart) {
     res.send("restarted");
   });
 
+  app.get('/sleep', (req, res) => {
+    const sleepTime = parseInt(req.query.value);
+    CONF.SLEEP=sleepTime;
+    res.send("ok");
+  });
+
   io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('disconnect', () => {
