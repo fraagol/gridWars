@@ -16,7 +16,7 @@ init(app, io, server, restart)
 let hLines = initArray(CONF.GRID_SIZE + 1);
 let vLines = initArray(CONF.GRID_SIZE + 1);
 let squares = initArray(CONF.GRID_SIZE + 1);
-let nextMovements = [[], [{ x: 0, y: 0 }, { x: 20, y:20 }, { x: 0, y: 0 }], [], []];
+let nextMovements = [[], [{ x: 0, y: 0 }, [/*forcing error to check catch*/], { x: 0, y: 0 }], [], []];
 
 
 function restart() {
@@ -31,114 +31,124 @@ async function start() {
 
     for (let index = 1; index < players.length; index++) {
 
-      const player = players[index];
-      let wait = true;
-      let do_not_sleep=false;
-      // console.log(player.url+ "?vLines="+JSON.stringify(vLines)+"&hLines="+JSON.stringify(hLines)+"&squares="+JSON.stringify(squares))
+      try {
 
-      let turnPromise;
 
-      // check if available movement
-      let candidateMove;
-      if (nextMovements[player.id].length) {
-        candidateMove = nextMovements[player.id][0];
-        if (inTarget(player, candidateMove)) {
-          nextMovements[player.id].shift();
-          if (nextMovements[player.id].length) {
-            candidateMove = nextMovements[player.id][0];
-          } else {
-            candidateMove = null;
+        const player = players[index];
+        let wait = true;
+        let do_not_sleep = false;
+        // console.log(player.url+ "?vLines="+JSON.stringify(vLines)+"&hLines="+JSON.stringify(hLines)+"&squares="+JSON.stringify(squares))
+
+        let turnPromise;
+
+        // check if available movement
+        let candidateMove;
+        if (nextMovements[player.id].length) {
+          candidateMove = nextMovements[player.id][0];
+          if (inTarget(player, candidateMove)) {
+            nextMovements[player.id].shift();
+            if (nextMovements[player.id].length) {
+              candidateMove = nextMovements[player.id][0];
+            } else {
+              candidateMove = null;
+            }
           }
         }
-      }
-      if (candidateMove) {
-        turnPromise = new Promise((resolve) => { resolve(candidateMove) });
-      } else if (CONF.USE_AWS) {
-        do_not_sleep = true;
-        turnPromise = fetch(player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)).then(response => response.json())
+        if (candidateMove) {
+          turnPromise = new Promise((resolve) => { resolve(candidateMove) });
+        } else if (CONF.USE_AWS) {
+          do_not_sleep = true;
+          turnPromise = fetch(player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)).then(response => response.json())
 
-      } else { //LOCAL
-       //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
-        turnPromise = new Promise((resolve) => { resolve([{ x: 10, y: 10 }, { x: 8, y: 8 }, { x: 7, y: 2 }]) });
-      }
+        } else { //LOCAL
+          //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
+          turnPromise = new Promise((resolve) => { resolve([{ x: rand(20), y: rand(20) }, { x: rand(20), y: rand(20) }]) });
+        }
 
         turnPromise = turnPromise.then((target => {
-          if (typeof target == 'string') return target;
+          try {
+            if (typeof target == 'string') return target;
 
-          let nextMove;
-          if (target instanceof Array) {
-            nextMove = target[0];
-            nextMovements[player.id] = target;
+            let nextMove;
+            if (target instanceof Array) {
+              nextMove = target[0];
+              nextMovements[player.id] = target;
 
-          } else {
-            nextMove = target;
+            } else {
+              nextMove = target;
+            }
+
+            if (player.x < nextMove.x) {
+              return "0";
+            };
+            if (player.x > nextMove.x) {
+              return "1";
+            };
+            if (player.y < nextMove.y) {
+              return "3";
+            };
+            if (player.y > nextMove.y) {
+              return "2";
+            };
+          } catch (error) {
+            console.log("Error: ", error);
           }
-  
-          if (player.x < nextMove.x) {
-            return "0";
-          };
-          if (player.x > nextMove.x) {
-            return "1";
-          };
-          if (player.y < nextMove.y) {
-            return "3";
-          };
-          if (player.y > nextMove.y) {
-            return "2";
-          };
           return 0;
         }))
-      
 
-      turnPromise.then(direction => {
-        switch (direction) {
-          case "0":
-            Object.assign(player, { vx: 1, vy: 0 });
-            hLines[player.x][player.y] = player.id;
-            break;
-          case "1":
-            Object.assign(player, { vx: -1, vy: 0 });
-            if (player.x > 0) {
-              hLines[player.x - 1][player.y] = player.id;
-            }
-            break;
-          case "2":
-            Object.assign(player, { vx: 0, vy: -1 });
-            if (player.y > 0) {
-              vLines[player.x][player.y - 1] = player.id;
-            }
-            break;
-          case "3":
-            Object.assign(player, { vx: 0, vy: 1 });
-            vLines[player.x][player.y] = player.id;
-            break;
+
+        turnPromise.then(direction => {
+          switch (direction) {
+            case "0":
+              Object.assign(player, { vx: 1, vy: 0 });
+              hLines[player.x][player.y] = player.id;
+              break;
+            case "1":
+              Object.assign(player, { vx: -1, vy: 0 });
+              if (player.x > 0) {
+                hLines[player.x - 1][player.y] = player.id;
+              }
+              break;
+            case "2":
+              Object.assign(player, { vx: 0, vy: -1 });
+              if (player.y > 0) {
+                vLines[player.x][player.y - 1] = player.id;
+              }
+              break;
+            case "3":
+              Object.assign(player, { vx: 0, vy: 1 });
+              vLines[player.x][player.y] = player.id;
+              break;
+
+          }
+
+          player.x += player.vx;
+          player.x = Math.max(player.x, 0);
+          player.x = Math.min(player.x, GRID_SIZE);
+          player.y += player.vy;
+          player.y = Math.max(player.y, 0);
+          player.y = Math.min(player.y, GRID_SIZE);
+
+        })
+          .then(async x => {
+            await evaluate(player);
+          })
+          .then(x => {
+            io.emit('sendStatus', { hLines, vLines, squares, players })
+          })
+          .then(x => {
+            player.vx = 0;
+            player.vy = 0;
+            wait = false
+          });
+        while (wait) {
+
+          await sleep(do_not_sleep ? 0 : CONF.SLEEP);
+
 
         }
-
-        player.x += player.vx;
-        player.x = Math.max(player.x, 0);
-        player.x = Math.min(player.x, GRID_SIZE);
-        player.y += player.vy;
-        player.y = Math.max(player.y, 0);
-        player.y = Math.min(player.y, GRID_SIZE);
-
-      })
-        .then(async x => {
-          await evaluate(player);
-        })
-        .then(x => {
-          io.emit('sendStatus', { hLines, vLines, squares, players })
-        })
-        .then(x => {
-          player.vx = 0;
-          player.vy = 0;
-          wait = false
-        });
-      while (wait) {
-        
-        await sleep(do_not_sleep? 0:CONF.SLEEP);
-        
-
+      } catch (error) {
+        console.log("catched error", error);
       }
     }
 
@@ -319,3 +329,7 @@ async function sleep(ms) {
 
 sleep(5000)
 start()
+
+function rand(x){
+return Math.floor(Math.random() * x)
+}
