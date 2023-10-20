@@ -11,7 +11,7 @@ const { players, init, initArray, CONF } = require('./setup')
 
 const GRID_SIZE = CONF.GRID_SIZE;
 
-init(app, io, server, restart)
+init(app, io, server, restart, addPlayerCallback)
 
 let hLines = initArray(CONF.GRID_SIZE + 1);
 let vLines = initArray(CONF.GRID_SIZE + 1);
@@ -36,6 +36,11 @@ function restart() {
   vLines = initArray(CONF.GRID_SIZE + 1);
   squares = initArray(CONF.GRID_SIZE + 1);
 }
+function addPlayerCallback(newPlayer){
+  newPlayer.id=players.length;
+  players.push(newPlayer);
+  nextMovements.push([]);
+}
 
 async function start() {
   while (true) {
@@ -54,6 +59,8 @@ async function start() {
 
         // check if available movement
         let candidateMove;
+        //
+
         if (nextMovements[player.id].length) {
           candidateMove = nextMovements[player.id][0];
           if (inTarget(player, candidateMove)|| outside(candidateMove)) {

@@ -51,6 +51,8 @@
       <div class="py-4 font-bold text-center">
         <button onclick="fetch('/restart')">Restart</button>
         <br> <br>
+        <button onclick="fetch('/addPlayer')">Add Player</button>
+        <br> <br>
         <label>Sleep time</label><br>
         <input type="range" min="20" max="500" list="mydata" step="20" onclick="fetch('/sleep?value='+this.value)">
       </input>
