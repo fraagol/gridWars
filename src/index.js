@@ -16,7 +16,18 @@ init(app, io, server, restart)
 let hLines = initArray(CONF.GRID_SIZE + 1);
 let vLines = initArray(CONF.GRID_SIZE + 1);
 let squares = initArray(CONF.GRID_SIZE + 1);
-let nextMovements = [[], [{ x: 20, y: 20 }, [/*forcing error to check catch*/], { x: 0, y: 0 }], [], []];
+let nextMovements = [[],
+ [{ x: 20, y: 20 }, { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }
+ , { x: 0, y: 0 },{ x: 20, y: 20 }], [], []];
 
 
 function restart() {
@@ -238,6 +249,10 @@ async function checkArea(player, square) {
     return 1;
   }
 
+  if (enemyInSquare(player.id, x, y)){
+    return 1;
+  }
+
   if (CONF.AREAS_DEBUG_MODE) {
     io.emit('checkingSquare', { x, y });
     await sleep(50);
@@ -315,6 +330,25 @@ function checkIfJoin(player) {
 
   return nLines > 1;
 }
+
+function enemyInSquare(playerId, x, y) {
+  for (let index = 1; index < players.length; index++) {
+    if(index == playerId){
+      continue;
+    }
+    const enemy = players[index];
+    const enemyX = enemy.x;
+    const enemyY = enemy.y;
+    if((enemyX == x && enemyY == y)
+    ||(enemyX == x+1 && enemyY == y)
+    ||(enemyX == x && enemyY == y+1)
+    ||(enemyX == x+1 && enemyY == y+1) ){
+      return true;
+    }
+  }
+  return false;
+}
+
 
 function inTarget(a, b) {
   return a.x == b.x && a.y == b.y;
