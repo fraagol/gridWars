@@ -53,6 +53,9 @@
         <br> <br>
         <button onclick="fetch('/addPlayer')">Add Player</button>
         <br> <br>
+        <button onclick="fetch('/switchMode')">Switch AWS/local</button>
+        <br> <br>
+
         <label>Sleep time</label><br>
         <input type="range" min="20" max="500" list="mydata" step="20" onclick="fetch('/sleep?value='+this.value)">
       </input>

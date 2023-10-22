@@ -80,7 +80,7 @@ async function start() {
 
         } else { //LOCAL
           //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
-          turnPromise = new Promise((resolve) => { resolve([{ x: rand(44), y: rand(44) }, { x: rand(21), y: rand(21) }]) });
+          turnPromise = new Promise((resolve) => { resolve([{ x: rand(21), y: rand(21) }, { x: rand(21), y: rand(21) }]) });
         }
 
         turnPromise = turnPromise.then((target => {

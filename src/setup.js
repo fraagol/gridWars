@@ -56,6 +56,11 @@ function init(app, io, server,restart, addPlayerCallback) {
     res.send("restarted");
   });
 
+  app.get('/switchMode', (req, res) =>{
+    CONF.USE_AWS = !CONF.USE_AWS;
+    res.send("switched to: " + CONF.USE_AWS);
+  });
+
   app.get('/addPlayer', (req, res) => {
 
     addPlayerCallback({
