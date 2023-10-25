@@ -67,7 +67,11 @@ async function start() {
          // do_not_sleep = true;
           const playersString = buildPlayersString();
           const url = player.url + "?x=" +player.x+"&y="+player.y+"&vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)+"&players="+playersString;
-          turnPromise = fetch(encodeURI(url)).then(response => response.json())
+          turnPromise = fetch(encodeURI(url)).then(response => {
+            try{ return response.json()
+            }catch (errror){
+              return "0";
+            }})
 
         } else { //LOCAL
           //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
