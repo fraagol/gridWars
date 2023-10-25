@@ -64,7 +64,7 @@ async function start() {
         if (candidateMove) {
           turnPromise = new Promise((resolve) => { resolve(candidateMove) });
         } else if (CONF.USE_AWS) {
-          do_not_sleep = true;
+         // do_not_sleep = true;
           const playersString = buildPlayersString();
           const url = player.url + "?x=" +player.x+"&y="+player.y+"&vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)+"&players="+playersString;
           turnPromise = fetch(encodeURI(url)).then(response => response.json())
