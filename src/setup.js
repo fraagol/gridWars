@@ -1,4 +1,6 @@
 const https = require('https');
+const express = require('express');
+const path = require('path');
 
 const CONF = {
   GRID_SIZE: 20,
@@ -89,6 +91,8 @@ function init(app, io, server, restart, addPlayerCallback) {
     CONF.SLEEP = sleepTime;
     res.send("ok");
   });
+
+  app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
   io.on('connection', (socket) => {
     console.log('a user connected');
