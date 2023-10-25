@@ -229,7 +229,7 @@ function resetPlayersScore() {
   }
 }
 function updateScoreboard() {
-  store.commit('setPlayersArray', players);
+  store.dispatch('throttledSetPlayersArray', players);
   // console.log(`score: ${players[0].score}, ${players[1].score}, ${players[2].score}`);
   // const scoreboard = document.getElementById("scoreboard");
   // scoreboard.textContent = `score: ${players[0].score}, ${players[1].score}, ${players[2].score}`;
