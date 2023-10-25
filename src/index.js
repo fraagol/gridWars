@@ -39,7 +39,6 @@ async function start() {
 
       try {
 
-
         const player = players[index];
         let wait = true;
         let do_not_sleep = false;
@@ -67,7 +66,7 @@ async function start() {
         } else if (CONF.USE_AWS) {
           do_not_sleep = true;
           const playersString = buildPlayersString();
-          const url = player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)+"&players="+playersString;
+          const url = player.url + "?x=" +player.x+"&y="+player.y+"&vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)+"&players="+playersString;
           turnPromise = fetch(encodeURI(url)).then(response => response.json())
 
         } else { //LOCAL
@@ -359,7 +358,6 @@ function outside(a) {
 
 function buildPlayersString(){
   const playersString=JSON.stringify(players.slice(1).map(p=> {return {id: p.id, x:p.x, y:p.y, name:p.name}}));
-  console.log(playersString);
   return playersString;
 }
 
