@@ -7,7 +7,7 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const { Map, Set } = require('immutable');
-const { players, init, initArray, CONF } = require('./setup')
+const { players, init, initArray, CONF, nextMovements } = require('./setup')
 
 const GRID_SIZE = CONF.GRID_SIZE;
 
@@ -16,18 +16,6 @@ init(app, io, server, restart, addPlayerCallback)
 let hLines = initArray(CONF.GRID_SIZE + 1);
 let vLines = initArray(CONF.GRID_SIZE + 1);
 let squares = initArray(CONF.GRID_SIZE + 1);
-let nextMovements = [[],
- [{ x: 20, y: 20 }, { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }
- , { x: 0, y: 0 },{ x: 20, y: 20 }], [], []];
 
 
 function restart() {
@@ -44,7 +32,9 @@ function addPlayerCallback(newPlayer){
 
 async function start() {
   while (true) {
-
+    if (players.length<2){
+      await sleep(100)
+    }
     for (let index = 1; index < players.length; index++) {
 
       try {
@@ -60,7 +50,7 @@ async function start() {
         // check if available movement
         let candidateMove;
         //
-
+        
         if (nextMovements[player.id].length) {
           candidateMove = nextMovements[player.id][0];
           if (inTarget(player, candidateMove)|| outside(candidateMove)) {
@@ -371,7 +361,7 @@ async function sleep(ms) {
   });
 }
 
-sleep(5000)
+ sleep(5000)
 start()
 
 function rand(x){
