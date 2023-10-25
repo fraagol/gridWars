@@ -10,6 +10,9 @@
     .flip-list-move {
       transition: transform .2s;
     }
+    .flip-list-leave-active {
+      position: absolute;
+    }
   </style>
 </head>
 
@@ -17,32 +20,11 @@
   <h1 class="text-center w-full font-bold text-[42px] text-[#cc0541] underline decoration-[#00c4f5] mt-6 mb-2">
     Grid Wars
   </h1>
-  <div class="flex justify-center gap-5 py-4">
+  <div id="vue-app" class="flex justify-center gap-5 py-4">
     <canvas id="canvas" width="1000" height="1000" class="ring-2 ring-slate-500 ring-offset-4 rounded-lg"></canvas>
     <!-- Scoreboard - root component -->
-    <div id="scoreboard" class="border border-slate-500 rounded-lg w-[300px] h-auto px-6 flex flex-col">
-      <div class="py-4 font-bold text-center">
-        Scoreboard
-      </div>
-      <hr class="mb-4">
-      <bar-percentage :players="$store.getters.playersWithPercentage"></bar-percentage>
-      <hr class="mt-4">
-      <transition-group name="flip-list" tag="div" class="flex flex-col gap-0 mt-4">
-        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="flex items-center gap-2 w-full"
-          :style="`background-color: ${player.style}22; padding:5px`">
-          <div>
-            {{ player.emoji }}
-          </div>
-          <div class="underline" :style="`text-decoration-color: ${player.style}`">{{ player.name }}</div>
-          <div class="ml-auto font-bold">{{ player.score}}</div>
-        </div>
-      </transition-group>
-      <hr class="my-4">
-      <div class="flex justify-center mt-auto mb-8">
-        <chart-pie :players="$store.getters.playersSorted"></chart-pie>
-      </div>
-    </div>
-    <div id="settings" class="border border-slate-500 rounded-lg w-[300px] h-auto px-6 flex flex-col">
+    <score v-if="!isAdmin"></score>
+    <div v-else id="settings" class="border border-slate-500 rounded-lg w-[300px] h-auto px-6 flex flex-col">
       <div class="py-4 font-bold text-center">
         Admin dashboard
       </div>
@@ -63,6 +45,33 @@
       </div>
     </div>
   </div>
+  <!-- Scoreboard -->
+  <template id="score-template">
+    <div class="border border-slate-500 rounded-lg w-[300px] h-auto px-6 flex flex-col">
+      <div class="py-4 font-bold text-center">
+        Scoreboard
+      </div>
+      <hr class="mb-4">
+      <bar-percentage :players="$store.getters.playersWithPercentage"></bar-percentage>
+      <hr class="mt-4">
+      <transition-group name="flip-list" tag="div" class="flex flex-col gap-0 mt-4">
+        <div v-for="player in $store.getters.playersSorted" :key="player.name" class="block">
+          <div class="flex items-center gap-2 w-full"
+            :style="`background-color: ${player.style}22; padding:5px`">
+            <div>
+              {{ player.emoji }}
+            </div>
+            <div class="underline" :style="`text-decoration-color: ${player.style}`">{{ player.name }}</div>
+            <div class="ml-auto font-bold">{{ player.score}}</div>
+          </div>
+        </div>
+      </transition-group>
+      <hr class="my-4">
+      <div class="flex justify-center mt-auto mb-8">
+        <chart-pie :players="$store.getters.playersSorted"></chart-pie>
+      </div>
+    </div>
+  </template>
   <!-- Pie -->
   <template id="pie-chart">
     <div>
@@ -103,6 +112,17 @@
   <script src="/socket.client.js"></script>
 
   <script>
+    function throttle(fn, limit) {
+      let lastCall = 0;
+      return function(...args) {
+        const now = (new Date).getTime();
+        if (now - lastCall < limit) {
+          return;
+        }
+        lastCall = now;
+        return fn(...args);
+      };
+    }
     const store = new Vuex.Store({
       state: {
         players: []
@@ -112,6 +132,11 @@
           state.players = structuredClone(newVal);
         }
       },
+      actions: {
+        throttledSetPlayersArray: throttle(function({ commit }, newVal) {
+          commit('setPlayersArray', newVal);
+        }, 250)
+      },
       getters: {
         playersSorted(state) {
           return state.players.filter(el => el.name).sort((a, b) => b.score - a.score);
@@ -120,10 +145,10 @@
           return state.players.filter(el => el.name).reduce((acc, player) => acc + player.score, 0);
         },
         allPlayersTotalScore(state) {
-          return state.players.slice(1).reduce((acc, player) => acc + player.score, 0);
+          return state.players.reduce((acc, player) => acc + player.score, 0);
         },
         playersWithPercentage(state, getters) {
-          return state.players.slice(1).map(player => {
+          return state.players.map(player => {
             return {
               ...player,
               percentage: ((player.score / getters.allPlayersTotalScore) * 100).toFixed(1)
@@ -213,13 +238,33 @@
       },
     };
 
-    const app = new Vue({
-      store,
+    // ----------------- //
+
+    const scoreComponent = {
+      template: '#score-template',
       components: {
         chartPie: chartPieComponent,
-        barPercentage: barPercentageComponent
+        barPercentage: barPercentageComponent,
       },
-    }).$mount('#scoreboard')
+    }
+
+    const app = new Vue({
+      store,
+      data() {
+        return {
+          isAdmin: false,
+        }
+      },
+      mounted() {
+        const localStorageVal = localStorage.getItem('grid_wars_admin');
+        if (localStorageVal) {
+          this.isAdmin = localStorageVal === 'true';
+        }
+      },
+      components: {
+        score: scoreComponent,
+      },
+    }).$mount('#vue-app')
   </script>
 </body>
 
