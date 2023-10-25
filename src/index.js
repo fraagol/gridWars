@@ -70,8 +70,9 @@ async function start() {
           turnPromise = fetch(encodeURI(url)).then(response => {
             try{ return response.json()
             }catch (errror){
+              console.log("error with player:" +player.id);
               return "0";
-            }})
+            }}).catch(error => {console.error(error)})
 
         } else { //LOCAL
           //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
