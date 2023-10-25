@@ -66,7 +66,9 @@ async function start() {
           turnPromise = new Promise((resolve) => { resolve(candidateMove) });
         } else if (CONF.USE_AWS) {
           do_not_sleep = true;
-          turnPromise = fetch(player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)).then(response => response.json())
+          const playersString = buildPlayersString();
+          const url = player.url + "?vLines=" + JSON.stringify(vLines) + "&hLines=" + JSON.stringify(hLines) + "&squares=" + JSON.stringify(squares)+"&players="+playersString;
+          turnPromise = fetch(encodeURI(url)).then(response => response.json())
 
         } else { //LOCAL
           //   turnPromise = new Promise((resolve) => { resolve((Math.floor(Math.random() * 4)).toString()) });
@@ -353,6 +355,12 @@ function inTarget(a, b) {
 
 function outside(a) {
   return a.x > GRID_SIZE  || a.y > GRID_SIZE  || a.x < 0   || a.y <0 ;
+}
+
+function buildPlayersString(){
+  const playersString=JSON.stringify(players.slice(1).map(p=> {return {id: p.id, x:p.x, y:p.y, name:p.name}}));
+  console.log(playersString);
+  return playersString;
 }
 
 async function sleep(ms) {
